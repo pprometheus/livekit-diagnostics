@@ -16,6 +16,11 @@ const testRoomSlice = createSlice({
       // console.log("Fetching token for:", peer, action.payload.participantName);
       state.peers[peer].status = "loading";
     },
+    fetchTokenB: (state, action) => {
+      const peer = action.payload.participantName; // peer can be "peerA" or "peerB"
+      // console.log("Fetching token for:", peer, action.payload.participantName);
+      state.peers[peer].status = "loading";
+    },
     setToken: (state, action) => {
       const { peer, token, roomName } = action.payload;
       console.log("Setting token for:", peer, action.payload);
@@ -36,7 +41,7 @@ const testRoomSlice = createSlice({
   },
 });
 
-export const { fetchToken, setToken, clearToken, tokenStatus } =
+export const { fetchToken, fetchTokenB,setToken, clearToken, tokenStatus } =
   testRoomSlice.actions;
 export const selectPeerA = (state) => state.testRoom.peers.peerA;
 export const selectPeerB = (state) => state.testRoom.peers.peerB;

@@ -1,6 +1,6 @@
 // redux/testRoom/testRoomSaga.js
 import { takeLatest, put, call } from "redux-saga/effects";
-import { fetchToken, setToken, tokenStatus } from "./testRoomSlice";
+import { fetchToken, fetchTokenB, setToken, tokenStatus } from "./testRoomSlice";
 import { getToken } from "../../utils/helper";
 
 function* handleToken(action) {
@@ -17,6 +17,8 @@ function* handleToken(action) {
 
 function* testRoomSaga() {
   yield takeLatest(fetchToken.type, handleToken); 
+  yield takeLatest(fetchTokenB.type, handleToken); 
+
 }
 
 export default testRoomSaga;

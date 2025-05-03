@@ -13,7 +13,7 @@ export const getToken = async (req, res) => {
       ttl: "10m",
     });
 
-    at.addGrant({ roomJoin: true, room: roomName });
+    at.addGrant({ roomJoin: true, room: roomName,canUpdateOwnMetadata: true });
 
     const token = await at.toJwt();
       res.json({

@@ -68,6 +68,9 @@ export default function InterviewRoomContainer() {
         );
       });
       console.log("roomB connected:", roomB,roomA)
+      await roomB.localParticipant.setAttributes({
+        hidden: true,
+      })
       const publisherPc = roomA.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
 

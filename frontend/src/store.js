@@ -1,7 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
-import testRoomReducer from "./redux/testRoom/testRoomSlice";
-import testRoomSaga from "./redux/testRoom/testRoomSaga";
+import testRoomSaga from "./redux/InterviewRoom/testRoomSaga";
+import testRoomReducer from "./redux/InterviewRoom/testRoomSlice"; 
+
 
 const sagaMiddleware = createSagaMiddleware();
 

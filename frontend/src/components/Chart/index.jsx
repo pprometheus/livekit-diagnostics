@@ -20,7 +20,7 @@ const Chart = ({
 }) => (
   <div className={`bg-gray-900 rounded-lg shadow p-4 flex flex-col flex-1 ${className}`}>
     <h3 className="text-gray-200 mb-2">{title}</h3>
-    <div className="flex-1">
+    <div className="flex h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}

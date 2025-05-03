@@ -18,6 +18,7 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
+
   const dispatch = useDispatch();
   const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
@@ -47,7 +48,7 @@ export default function InterviewRoomContainer() {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !tokenB) return;
 
     let mounted = true;
 
@@ -65,14 +66,10 @@ export default function InterviewRoomContainer() {
           trackPublication.trackSid
         );
       });
+      console.log("roomB connected:", roomB, roomA);
 
       const publisherPc = roomA.engine.pcManager.publisher._pc;
-      if (publisherPc) startStatsPolling(publisherPc, setStatsData);
-
-      roomB.on("trackSubscribed", ({ _pc }) => {
-        if (_pc) startStatsPolling(_pc, setStatsData);
-        else console.error("RTCPeerConnection is undefined");
-      });
+      if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
     };
 
     connectRoom();
@@ -81,9 +78,16 @@ export default function InterviewRoomContainer() {
       mounted = false;
       roomA.disconnect();
     };
-  }, [roomA, token]);
+  }, [roomA, token, tokenB]);
 
-  return <InterviewRoom token={token} roomA={roomA} statsData={statsData} />;
+  return (
+    <InterviewRoom
+      token={token}
+      roomA={roomA}
+      statsData={statsData}
+      //   subscriberData={subscriberData}
+    />
+  );
 }
 
 export const MyVideoConference = () => {
@@ -94,18 +98,20 @@ export const MyVideoConference = () => {
     ],
     { onlySubscribed: false }
   );
-
+  const visibleTracks = tracks.filter(
+    (t) => t.participant.identity !== "peerB"
+  );
   return (
-    <GridLayout tracks={tracks}
-    style={{padding:"10px", borderRadius:"50px"}}>
-      <ParticipantTile 
-      style={{borderRadius:"10px"
-      }}/>
+    <GridLayout
+      tracks={visibleTracks}
+      style={{ padding: "10px", borderRadius: "50px" }}
+    >
+      <ParticipantTile style={{ borderRadius: "10px" }} />
     </GridLayout>
   );
 };
 
-export const startStatsPolling = (pc, setStatsData) => {
+export const startStatsPolling = (pc, setStatsData, roomId) => {
   let prevBytesSent = 0;
   let prevBytesReceived = 0;
 
@@ -115,9 +121,10 @@ export const startStatsPolling = (pc, setStatsData) => {
       let upBps = 0;
       let downBps = 0;
       let rttMs = 0;
+      let packetsLost = 0;
+      let packetsReceived = 0;
 
       stats.forEach((stat) => {
-        console.log("stat", stat);
         if (stat.type === "transport") {
           upBps = stat.bytesSent - prevBytesSent;
           downBps = stat.bytesReceived - prevBytesReceived;
@@ -127,12 +134,31 @@ export const startStatsPolling = (pc, setStatsData) => {
         if (stat.type === "candidate-pair" && stat.state === "succeeded") {
           rttMs = stat.currentRoundTripTime * 1000;
         }
+        if (stat.type === "remote-inbound-rtp") {
+          packetsLost = stat.packetsLost || 0; // Total packets lost
+          packetsReceived = stat.packetsReceived || 0; // Total packets received
+        }
       });
+      console.log("ststa",packetsLost, packetsReceived);
+
+      // Calculate loss fraction
+      const lossFraction =
+        packetsLost + packetsReceived > 0
+          ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
+          : 0;
 
       const timestamp = new Date().toLocaleTimeString();
+
       setStatsData((prev) => [
         ...prev.slice(-19),
-        { time: timestamp, upload: upBps, download: downBps, latency: rttMs },
+        {
+          roomId: roomId,
+          time: timestamp,
+          upload: upBps,
+          download: downBps,
+          latency: rttMs,
+          lossFraction: lossFraction,
+        },
       ]);
     } catch (err) {
       console.error("Stats error:", err);

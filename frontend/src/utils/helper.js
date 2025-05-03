@@ -1,6 +1,5 @@
 // utils/helper.js
 import axios from "axios";
-
 export const getToken = async (participantName) => {
   try {
     const response = await axios.get("http://localhost:3000/token/getToken", {

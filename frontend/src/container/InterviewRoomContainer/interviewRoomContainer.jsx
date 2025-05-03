@@ -4,12 +4,9 @@ import {
   ParticipantTile,
   useTracks,
 } from "@livekit/components-react";
-import axios from "axios";
 import { Track as LKTrack, Room } from "livekit-client";
-
 import { useDispatch, useSelector } from "react-redux";
-import { fetchToken, fetchTokenB, selectPeerA, selectPeerB } from "../../redux/testRoom/testRoomSlice";
-import TestRoom from "../../components/testRoom";
+import { fetchToken, fetchTokenB, selectPeerA, selectPeerB } from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
 
 const serverUrl = "wss://test-bsueauex.livekit.cloud";

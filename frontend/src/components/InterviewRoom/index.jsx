@@ -28,11 +28,12 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
         <TopBar />
 
         <div className="flex flex-1 overflow-hidden">
-          <MyVideoConference className="w-full h-full object-cover" />
+          <MyVideoConference/>
           <RoomAudioRenderer />
 
           {isSidebarVisible && (
             <Sidebar>
+                <span className="text-sm text-white">Network Connected via:</span>
               <Chart
                 title="Bandwidth"
                 data={statsData}

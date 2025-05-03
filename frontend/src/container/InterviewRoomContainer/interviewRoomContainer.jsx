@@ -96,10 +96,11 @@ export const MyVideoConference = () => {
   );
 
   return (
-    <GridLayout tracks={tracks} 
-    style={{ width: "100%", height: "100%" }}>
-
-      <ParticipantTile  />
+    <GridLayout tracks={tracks}
+    style={{padding:"10px", borderRadius:"50px"}}>
+      <ParticipantTile 
+      style={{borderRadius:"10px"
+      }}/>
     </GridLayout>
   );
 };

@@ -20,12 +20,12 @@ const TopBar = () => {
             icon={faCircleDot}
             className="text-red-600 text-base"
           />
-          <span className="text-white text-sm leading-none">02:15</span>
+          <span className="text-white text-sm leading-none">00:00</span>
         </div>
 
         <div className="h-8 w-[413px] flex items-center overflow-hidden">
           <h2 className="text-white text-lg font-semibold whitespace-nowrap overflow-ellipsis leading-none">
-            Technical Interview for Lead Frontend Developer
+            Interview for Room A
           </h2>
         </div>
       </div>

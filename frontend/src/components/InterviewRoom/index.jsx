@@ -7,7 +7,7 @@ import "@livekit/components-styles";
 import Chart from "../Chart";
 import { MyVideoConference } from "../../container/InterviewRoomContainer/interviewRoomContainer";
 
-const InterviewRoom = ({ token, roomA, statsData }) => {
+const InterviewRoom = ({ token,roomA, statsData,subscriberData }) => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
 
         <Controls />
       </RoomContext.Provider>
-    </div>
+          </div>
   );
 };
 

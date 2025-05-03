@@ -18,6 +18,7 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
+
   const dispatch = useDispatch();
   const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
@@ -47,7 +48,7 @@ export default function InterviewRoomContainer() {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token||!tokenB) return;
 
     let mounted = true;
 
@@ -58,6 +59,7 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setMicrophoneEnabled(true);
       await roomA.localParticipant?.setCameraEnabled(true);
 
+
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
       roomB.on("trackSubscribed", (trackPublication, track) => {
         console.log(
@@ -65,14 +67,13 @@ export default function InterviewRoomContainer() {
           trackPublication.trackSid
         );
       });
-
+      console.log("roomB connected:", roomB,roomA)
       const publisherPc = roomA.engine.pcManager.publisher._pc;
-      if (publisherPc) startStatsPolling(publisherPc, setStatsData);
+      if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
 
-      roomB.on("trackSubscribed", ({ _pc }) => {
-        if (_pc) startStatsPolling(_pc, setStatsData);
-        else console.error("RTCPeerConnection is undefined");
-      });
+    
+      
+     
     };
 
     connectRoom();
@@ -81,9 +82,16 @@ export default function InterviewRoomContainer() {
       mounted = false;
       roomA.disconnect();
     };
-  }, [roomA, token]);
+  }, [roomA, token,tokenB]);
 
-  return <InterviewRoom token={token} roomA={roomA} statsData={statsData} />;
+  return (
+    <InterviewRoom
+      token={token}
+      roomA={roomA}
+      statsData={statsData}
+    //   subscriberData={subscriberData}
+    />
+  );
 }
 
 export const MyVideoConference = () => {
@@ -96,16 +104,16 @@ export const MyVideoConference = () => {
   );
 
   return (
-    <GridLayout tracks={tracks}
-    style={{padding:"10px", borderRadius:"50px"}}>
-      <ParticipantTile 
-      style={{borderRadius:"10px"
-      }}/>
+    <GridLayout
+      tracks={tracks}
+      style={{ padding: "10px", borderRadius: "50px" }}
+    >
+      <ParticipantTile style={{ borderRadius: "10px" }} />
     </GridLayout>
   );
 };
 
-export const startStatsPolling = (pc, setStatsData) => {
+export const startStatsPolling = (pc, setStatsData, roomId) => {
   let prevBytesSent = 0;
   let prevBytesReceived = 0;
 
@@ -130,9 +138,18 @@ export const startStatsPolling = (pc, setStatsData) => {
       });
 
       const timestamp = new Date().toLocaleTimeString();
+    //   console.log(
+    //     `Room: ${roomId}, Upload: ${upBps} bps, Download: ${downBps} bps, RTT: ${rttMs} ms`
+    //   );
       setStatsData((prev) => [
         ...prev.slice(-19),
-        { time: timestamp, upload: upBps, download: downBps, latency: rttMs },
+        {
+          roomId: roomId,
+          time: timestamp,
+          upload: upBps,
+          download: downBps,
+          latency: rttMs,
+        },
       ]);
     } catch (err) {
       console.error("Stats error:", err);

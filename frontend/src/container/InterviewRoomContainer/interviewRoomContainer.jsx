@@ -48,7 +48,7 @@ export default function InterviewRoomContainer() {
   }, []);
 
   useEffect(() => {
-    if (!token||!tokenB) return;
+    if (!token || !tokenB) return;
 
     let mounted = true;
 
@@ -59,22 +59,17 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setMicrophoneEnabled(true);
       await roomA.localParticipant?.setCameraEnabled(true);
 
-
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
-            roomB.on("trackSubscribed", (trackPublication, track) => {
+      roomB.on("trackSubscribed", (trackPublication, track) => {
         console.log(
           `roomB subscribed to ${trackPublication.kind} track:`,
           trackPublication.trackSid
         );
       });
-      console.log("roomB connected:", roomB,roomA)
-    
+      console.log("roomB connected:", roomB, roomA);
+
       const publisherPc = roomA.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
-
-    
-      
-     
     };
 
     connectRoom();
@@ -83,14 +78,14 @@ export default function InterviewRoomContainer() {
       mounted = false;
       roomA.disconnect();
     };
-  }, [roomA, token,tokenB]);
+  }, [roomA, token, tokenB]);
 
   return (
     <InterviewRoom
       token={token}
       roomA={roomA}
       statsData={statsData}
-    //   subscriberData={subscriberData}
+      //   subscriberData={subscriberData}
     />
   );
 }
@@ -103,18 +98,15 @@ export const MyVideoConference = () => {
     ],
     { onlySubscribed: false }
   );
-  const visibleTracks = tracks.filter(t => t.participant.identity !== "peerB");
-console.log("visibleTracks", tracks,visibleTracks);
+  const visibleTracks = tracks.filter(
+    (t) => t.participant.identity !== "peerB"
+  );
   return (
     <GridLayout
       tracks={visibleTracks}
       style={{ padding: "10px", borderRadius: "50px" }}
     >
-      <ParticipantTile
-      
-      style={{ borderRadius: "10px" }} 
-      
-      />
+      <ParticipantTile style={{ borderRadius: "10px" }} />
     </GridLayout>
   );
 };
@@ -129,9 +121,10 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       let upBps = 0;
       let downBps = 0;
       let rttMs = 0;
+      let packetsLost = 0;
+      let packetsReceived = 0;
 
       stats.forEach((stat) => {
-        console.log("stat", stat);
         if (stat.type === "transport") {
           upBps = stat.bytesSent - prevBytesSent;
           downBps = stat.bytesReceived - prevBytesReceived;
@@ -141,12 +134,21 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         if (stat.type === "candidate-pair" && stat.state === "succeeded") {
           rttMs = stat.currentRoundTripTime * 1000;
         }
+        if (stat.type === "remote-inbound-rtp") {
+          packetsLost = stat.packetsLost || 0; // Total packets lost
+          packetsReceived = stat.packetsReceived || 0; // Total packets received
+        }
       });
+      console.log("ststa",packetsLost, packetsReceived);
+
+      // Calculate loss fraction
+      const lossFraction =
+        packetsLost + packetsReceived > 0
+          ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
+          : 0;
 
       const timestamp = new Date().toLocaleTimeString();
-    //   console.log(
-    //     `Room: ${roomId}, Upload: ${upBps} bps, Download: ${downBps} bps, RTT: ${rttMs} ms`
-    //   );
+
       setStatsData((prev) => [
         ...prev.slice(-19),
         {
@@ -155,6 +157,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           upload: upBps,
           download: downBps,
           latency: rttMs,
+          lossFraction: lossFraction,
         },
       ]);
     } catch (err) {

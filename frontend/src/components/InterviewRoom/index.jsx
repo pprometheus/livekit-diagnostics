@@ -7,7 +7,7 @@ import "@livekit/components-styles";
 import Chart from "../Chart";
 import { MyVideoConference } from "../../container/InterviewRoomContainer/interviewRoomContainer";
 
-const InterviewRoom = ({ token,roomA, statsData,subscriberData }) => {
+const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   useEffect(() => {
@@ -28,12 +28,12 @@ const InterviewRoom = ({ token,roomA, statsData,subscriberData }) => {
         <TopBar />
 
         <div className="flex flex-1 overflow-hidden">
-          <MyVideoConference/>
+          <MyVideoConference />
           <RoomAudioRenderer />
 
           {isSidebarVisible && (
             <Sidebar>
-                <span className="text-sm text-white">Network Connected via:</span>
+              <span className="text-sm text-white">Network Connected via:</span>
               <Chart
                 title="Bandwidth"
                 data={statsData}
@@ -53,13 +53,26 @@ const InterviewRoom = ({ token,roomA, statsData,subscriberData }) => {
                   { dataKey: "latency", name: "RTT (ms)", stroke: "#ff7300" },
                 ]}
               />
+
+              <Chart
+                title="Packet Loss (%)"
+                data={statsData}
+                xDataKey="time"
+                lines={[
+                  {
+                    dataKey: "packetLoss",
+                    name: "Loss (%)",
+                    stroke: "#ff0000",
+                  },
+                ]}
+              />
             </Sidebar>
           )}
         </div>
 
         <Controls />
       </RoomContext.Provider>
-          </div>
+    </div>
   );
 };
 

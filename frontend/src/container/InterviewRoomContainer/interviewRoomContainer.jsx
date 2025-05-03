@@ -61,16 +61,14 @@ export default function InterviewRoomContainer() {
 
 
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
-      roomB.on("trackSubscribed", (trackPublication, track) => {
+            roomB.on("trackSubscribed", (trackPublication, track) => {
         console.log(
           `roomB subscribed to ${trackPublication.kind} track:`,
           trackPublication.trackSid
         );
       });
       console.log("roomB connected:", roomB,roomA)
-      await roomB.localParticipant.setAttributes({
-        hidden: true,
-      })
+    
       const publisherPc = roomA.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
 
@@ -105,13 +103,18 @@ export const MyVideoConference = () => {
     ],
     { onlySubscribed: false }
   );
-
+  const visibleTracks = tracks.filter(t => t.participant.identity !== "peerB");
+console.log("visibleTracks", tracks,visibleTracks);
   return (
     <GridLayout
-      tracks={tracks}
+      tracks={visibleTracks}
       style={{ padding: "10px", borderRadius: "50px" }}
     >
-      <ParticipantTile style={{ borderRadius: "10px" }} />
+      <ParticipantTile
+      
+      style={{ borderRadius: "10px" }} 
+      
+      />
     </GridLayout>
   );
 };

@@ -5,7 +5,8 @@ export const getToken = async (req, res) => {
   console.log("Generating token...");
   try {
     const roomName = "Testing Room";
-    const participantName = "Amith"; // change from frontend
+    console.log("req.body", req.params);
+    const {participantName} = req.query; // change from frontend
     
     const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
       identity: participantName,

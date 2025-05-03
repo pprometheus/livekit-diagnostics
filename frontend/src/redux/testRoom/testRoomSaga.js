@@ -1,20 +1,23 @@
 // redux/testRoom/testRoomSaga.js
 import { takeLatest, put, call } from "redux-saga/effects";
-import { fetchToken, setToken, tokenStatus } from "./testRoomSlice";
-import { getToken } from "../../utils/helper";
-
+import { fetchToken, fetchTokenB, setToken, tokenStatus } from "./testRoomSlice";
+import {getToken} from "../../utils/helper";
 function* handleToken(action) {
+  const peer  = action.payload.participantName;
+  console.log("Fetching:", peer, action.payload.participantName);
   try {
-    const tokenData = yield call(getToken);
-    yield put(setToken({ token: tokenData.token, roomName: action.payload.roomName }));
+    const tokenData = yield call(getToken,peer); 
+    yield put(setToken({ peer, token: tokenData.token, roomName: tokenData.roomName }));
   } catch (error) {
-    yield put(tokenStatus({ status: "error" })); 
-    console.error("Error fetching token:", error.message);
+    yield put(tokenStatus({ peer, status: "error" })); 
+    console.error(`Error fetching token for ${peer}:`, error.message);
   }
 }
 
 function* testRoomSaga() {
   yield takeLatest(fetchToken.type, handleToken); 
+  yield takeLatest(fetchTokenB.type, handleToken); 
+
 }
 
 export default testRoomSaga;

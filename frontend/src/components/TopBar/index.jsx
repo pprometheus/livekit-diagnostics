@@ -1,5 +1,5 @@
 import React from "react";
-import IconWithLabel from "../IconLabel";
+import IconWithLabel from "../IconButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBriefcase,

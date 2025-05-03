@@ -6,7 +6,12 @@ import {
 } from "@livekit/components-react";
 import { Track as LKTrack, Room } from "livekit-client";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchToken, fetchTokenB, selectPeerA, selectPeerB } from "../../redux/InterviewRoom/testRoomSlice";
+import {
+  fetchToken,
+  fetchTokenB,
+  selectPeerA,
+  selectPeerB,
+} from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
 
 const serverUrl = "wss://test-bsueauex.livekit.cloud";
@@ -91,11 +96,10 @@ export const MyVideoConference = () => {
   );
 
   return (
-    <GridLayout
-      tracks={tracks}
-      style={{ height: "calc(100vh - var(--lk-control-bar-height) - 400px)" }}
-    >
-      <ParticipantTile />
+    <GridLayout tracks={tracks} 
+    style={{ width: "100%", height: "100%" }}>
+
+      <ParticipantTile  />
     </GridLayout>
   );
 };
@@ -125,7 +129,7 @@ export const startStatsPolling = (pc, setStatsData) => {
       });
 
       const timestamp = new Date().toLocaleTimeString();
-       setStatsData((prev) => [
+      setStatsData((prev) => [
         ...prev.slice(-19),
         { time: timestamp, upload: upBps, download: downBps, latency: rttMs },
       ]);
@@ -134,4 +138,3 @@ export const startStatsPolling = (pc, setStatsData) => {
     }
   }, 1000);
 };
-

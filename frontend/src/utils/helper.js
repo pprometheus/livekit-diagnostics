@@ -1,13 +1,17 @@
 // utils/helper.js
+import {Cookies } from "react-cookie"
 import axios from "axios";
+const cookies = new Cookies();
 export const getToken = async (participantName) => {
   try {
     const response = await axios.get("http://localhost:3000/token/getToken", {
-      params: {
+      withCredentials: true,
+       params: {
         participantName,
       },
     });
-    return response.data;
+    const token = cookies.get("token" + participantName);
+    return token;
   } catch (error) {
     throw new Error(
       error.response.data.message ||

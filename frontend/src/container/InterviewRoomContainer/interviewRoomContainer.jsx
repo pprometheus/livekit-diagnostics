@@ -13,6 +13,7 @@ import {
   selectPeerB,
 } from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
+import { DateTime } from "luxon";
 
 const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
@@ -47,27 +48,27 @@ export default function InterviewRoomContainer() {
     dispatch(fetchTokenB({ participantName: "peerB" }));
   }, []);
 
-  useEffect(() => {
-    if (!token || !tokenB) return;
+  // useEffect(() => {
+  //   if (!token || !tokenB) return;
 
-    // const handle = setTimeout(async () => {
-    //   try {
-    //     dispatch(fetchToken({ participantName: "peerA" }));
-    //     dispatch(fetchTokenB({ participantName: "peerB" }));
-    //     console.log("Token refresh dispatched");
-    //     console.log("Token refresh dispatched", token, tokenB);
-    //     roomA.updateToken(token);
-    //     roomB.updateToken(tokenB);
+  //   // const handle = setTimeout(async () => {
+  //   //   try {
+  //   //     dispatch(fetchToken({ participantName: "peerA" }));
+  //   //     dispatch(fetchTokenB({ participantName: "peerB" }));
+  //   //     console.log("Token refresh dispatched");
+  //   //     console.log("Token refresh dispatched", token, tokenB);
+  //   //     roomA.updateToken(token);
+  //   //     roomB.updateToken(tokenB);
 
-    //   } catch (err) {
-    //     console.error("Token refresh failed:", err);
-    //     roomA.disconnect();
-    //     roomB.disconnect();
-    //   }
-    // }, 2 * 60 * 1000); // 9 minutes
+  //   //   } catch (err) {
+  //   //     console.error("Token refresh failed:", err);
+  //   //     roomA.disconnect();
+  //   //     roomB.disconnect();
+  //   //   }
+  //   // }, 2 * 60 * 1000); // 9 minutes
 
-    return () => clearTimeout(handle);
-  }, [dispatch, token, tokenB, roomA, roomB]);
+  //   return () => clearTimeout(handle);
+  // }, [dispatch, token, tokenB, roomA, roomB]);
 
   useEffect(() => {
     if (!token || !tokenB) return;
@@ -82,7 +83,7 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setCameraEnabled(true);
 
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
-   
+
       console.log("roomB connected:", roomB, roomA);
 
       const publisherPc = roomA.engine.pcManager.publisher._pc;
@@ -143,6 +144,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       let fractionLost = 0; // Fraction of packets lost
 
       stats.forEach((stat) => {
+        console.log("Stat:", stat);
         if (stat.type === "transport") {
           upBps = stat.bytesSent - prevBytesSent;
           downBps = stat.bytesReceived - prevBytesReceived;
@@ -154,18 +156,26 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         }
         if (stat.type === "remote-inbound-rtp") {
           packetsLost = stat.packetsLost || 0; // Total packets lost
-          packetsReceived = stat.packetsReceived || 0; // Total packets received
+          packetsReceived = stat.packetsReceived; // Total packets received
           fractionLost = stat.fractionLost || 0; // Fraction of packets lost
         }
       });
-      console.log("Packets Lost:", packetsLost, "Fraction Lost:",fractionLost, "Packets Recived:", packetsReceived);
+      console.log(
+        "Packets Lost:",
+        packetsLost,
+        "Fraction Lost:",
+        fractionLost,
+        "Packets Recived:",
+        packetsReceived
+      );
 
-      const lossFraction =
-        packetsLost + packetsReceived > 0
-          ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
-          : 0;
-console.log("Loss Fraction:", lossFraction);
-      const timestamp = new Date().toLocaleTimeString();
+      // const lossFraction =
+      //   packetsLost + packetsReceived > 0
+      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
+      //     : 0;
+      const lossFraction = (fractionLost / 256) * 100; 
+      console.log("Loss Fraction:", lossFraction);
+      const timestamp = DateTime.now().toFormat('hh:mm a');
 
       setStatsData((prev) => [
         ...prev.slice(-19),

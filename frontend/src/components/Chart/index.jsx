@@ -22,15 +22,12 @@ const Chart = ({
   yTickFormatter,
 }) => (
   <div
-    className={`bg-gray-900 rounded-lg shadow p-4 flex flex-col flex-1 ${className}`}
+    className={`bg-gray-900 rounded-lg shadow p-2 flex flex-col flex-1 ${className}`}
   >
     <h3 className="text-gray-200 mb-2 text-sm font-semibold">{title}</h3>
     <div className="flex h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
-        >
+        <LineChart data={data}>
           <CartesianGrid
             stroke="#2D3748"
             horizontal={true}
@@ -43,16 +40,14 @@ const Chart = ({
             tick={{ fontSize: 12 }}
             tickLine={{ stroke: "transparent" }}
             axisLine={{ stroke: "#2D3748" }}
-            padding={{ left: 20, right: 20 }}
             interval="preserveStartEnd"
             tickFormatter={(value) => {
-              // Parse with Luxon and maintain HH:mm format
               const dt = DateTime.fromFormat(value, "hh:mm a");
               return dt.isValid ? dt.toFormat("hh:mm a") : value;
             }}
           />
           <YAxis
-            orientation="right" // Move Y-axis to right side
+            orientation="right"
             stroke="#718096"
             domain={yDomain}
             tick={{ fontSize: 12 }}
@@ -63,7 +58,6 @@ const Chart = ({
             }
             width={40}
           />
-          {/* Restored Tooltip */}
           <Tooltip
             contentStyle={{
               backgroundColor: "#1A202C",
@@ -80,7 +74,7 @@ const Chart = ({
               color: "#fff",
               fontSize: 12,
             }}
-            position={{ x: 0, y: 0 }} // Adjust tooltip position
+            position={{ x: 0, y: 0 }}
           />
           {lines.map((line) => (
             <Line

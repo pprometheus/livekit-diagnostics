@@ -34,16 +34,23 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
           {isSidebarVisible && (
             <Sidebar>
               <span className="text-sm text-white">Network Connected via:</span>
-              {/* Bandwidth Chart */}
               <Chart
                 title="Bandwidth (Mbps)"
                 data={statsData}
                 xDataKey="time"
                 yDomain={[0, 100]}
-                yTickFormatter={(value) => `${(value / 1e6).toFixed(1)}`} // Convert bytes to Mbps
+                yTickFormatter={(value) => `${(value / 1e6).toFixed(1)}`}
                 lines={[
-                  { dataKey: "download", name: "Download", stroke: "#00bfff" },
-                  { dataKey: "upload", name: "Upload", stroke: "#cc88ff" },
+                  {
+                    dataKey: "download",
+                    name: "Download (bytes)",
+                    stroke: "#00bfff",
+                  },
+                  {
+                    dataKey: "upload",
+                    name: "Upload (bytes)",
+                    stroke: "#cc88ff",
+                  },
                 ]}
               />
 
@@ -64,7 +71,7 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
                 yDomain={[0, 100]}
                 lines={[
                   {
-                    dataKey: "packetLoss",
+                    dataKey: "lossFraction",
                     name: "Loss (%)",
                     stroke: "#ff0000",
                   },

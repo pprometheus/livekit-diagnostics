@@ -83,6 +83,8 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setCameraEnabled(true);
 
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
+      // await roomB.localParticipant?.setMicrophoneEnabled(true);
+      // await roomB.localParticipant?.setCameraEnabled(true);
 
       console.log("roomB connected:", roomB, roomA);
 
@@ -173,9 +175,9 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       //   packetsLost + packetsReceived > 0
       //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
       //     : 0;
-      const lossFraction = (fractionLost / 256) * 100; 
+      const lossFraction = fractionLost;
       console.log("Loss Fraction:", lossFraction);
-      const timestamp = DateTime.now().toFormat('hh:mm a');
+      const timestamp = DateTime.now().toFormat("hh:mm a");
 
       setStatsData((prev) => [
         ...prev.slice(-19),

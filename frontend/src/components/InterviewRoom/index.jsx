@@ -35,12 +35,22 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
             <Sidebar>
               <span className="text-sm text-white">Network Connected via:</span>
               <Chart
-                title="Bandwidth"
+                title="Bandwidth (Mbps)"
                 data={statsData}
                 xDataKey="time"
+                yDomain={[0, 100]}
+                yTickFormatter={(value) => `${(value / 1e6).toFixed(1)}`}
                 lines={[
-                  { dataKey: "download", name: "Download", stroke: "#00bfff" },
-                  { dataKey: "upload", name: "Upload", stroke: "#cc88ff" },
+                  {
+                    dataKey: "download",
+                    name: "Download (bytes)",
+                    stroke: "#00bfff",
+                  },
+                  {
+                    dataKey: "upload",
+                    name: "Upload (bytes)",
+                    stroke: "#cc88ff",
+                  },
                 ]}
               />
 
@@ -48,7 +58,7 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
                 title="Latency (ms)"
                 data={statsData}
                 xDataKey="time"
-                yDomain={[0, "auto"]}
+                yDomain={[0, 50]}
                 lines={[
                   { dataKey: "latency", name: "RTT (ms)", stroke: "#ff7300" },
                 ]}
@@ -58,9 +68,10 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
                 title="Packet Loss (%)"
                 data={statsData}
                 xDataKey="time"
+                yDomain={[0, 100]}
                 lines={[
                   {
-                    dataKey: "packetLoss",
+                    dataKey: "lossFraction",
                     name: "Loss (%)",
                     stroke: "#ff0000",
                   },

@@ -7,7 +7,7 @@ function* handleToken(action) {
   console.log("Fetching:", peer, action.payload.participantName);
   try {
     const tokenData = yield call(getToken,peer); 
-    yield put(setToken({ peer, token: tokenData.token, roomName: tokenData.roomName }));
+    yield put(setToken({ peer, token: tokenData, roomName:"Testing Room" }));
   } catch (error) {
     yield put(tokenStatus({ peer, status: "error" })); 
     console.error(`Error fetching token for ${peer}:`, error.message);

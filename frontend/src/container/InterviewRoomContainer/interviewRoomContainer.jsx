@@ -50,6 +50,28 @@ export default function InterviewRoomContainer() {
   useEffect(() => {
     if (!token || !tokenB) return;
 
+    // const handle = setTimeout(async () => {
+    //   try {
+    //     dispatch(fetchToken({ participantName: "peerA" }));
+    //     dispatch(fetchTokenB({ participantName: "peerB" }));
+    //     console.log("Token refresh dispatched");
+    //     console.log("Token refresh dispatched", token, tokenB);
+    //     roomA.updateToken(token);
+    //     roomB.updateToken(tokenB);
+
+    //   } catch (err) {
+    //     console.error("Token refresh failed:", err);
+    //     roomA.disconnect();
+    //     roomB.disconnect();
+    //   }
+    // }, 2 * 60 * 1000); // 9 minutes
+
+    return () => clearTimeout(handle);
+  }, [dispatch, token, tokenB, roomA, roomB]);
+
+  useEffect(() => {
+    if (!token || !tokenB) return;
+
     let mounted = true;
 
     const connectRoom = async () => {
@@ -139,7 +161,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           packetsReceived = stat.packetsReceived || 0; // Total packets received
         }
       });
-      console.log("ststa",packetsLost, packetsReceived);
+      console.log("ststa", packetsLost, packetsReceived);
 
       // Calculate loss fraction
       const lossFraction =

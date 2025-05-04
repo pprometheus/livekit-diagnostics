@@ -82,12 +82,7 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setCameraEnabled(true);
 
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
-      roomB.on("trackSubscribed", (trackPublication, track) => {
-        console.log(
-          `roomB subscribed to ${trackPublication.kind} track:`,
-          trackPublication.trackSid
-        );
-      });
+   
       console.log("roomB connected:", roomB, roomA);
 
       const publisherPc = roomA.engine.pcManager.publisher._pc;
@@ -145,6 +140,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       let rttMs = 0;
       let packetsLost = 0;
       let packetsReceived = 0;
+      let fractionLost = 0; // Fraction of packets lost
 
       stats.forEach((stat) => {
         if (stat.type === "transport") {
@@ -159,16 +155,16 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         if (stat.type === "remote-inbound-rtp") {
           packetsLost = stat.packetsLost || 0; // Total packets lost
           packetsReceived = stat.packetsReceived || 0; // Total packets received
+          fractionLost = stat.fractionLost || 0; // Fraction of packets lost
         }
       });
-      console.log("ststa", packetsLost, packetsReceived);
+      console.log("Packets Lost:", packetsLost, "Fraction Lost:",fractionLost, "Packets Recived:", packetsReceived);
 
-      // Calculate loss fraction
       const lossFraction =
         packetsLost + packetsReceived > 0
           ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
           : 0;
-
+console.log("Loss Fraction:", lossFraction);
       const timestamp = new Date().toLocaleTimeString();
 
       setStatsData((prev) => [

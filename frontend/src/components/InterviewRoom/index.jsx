@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { MediaDeviceSelect } from "@livekit/components-react";
 import TopBar from "../TopBar";
 import Controls from "../Controls";
 import Sidebar from "../SideBar";
@@ -69,7 +68,7 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
                 title="Packet Loss (%)"
                 data={statsData}
                 xDataKey="time"
-                yDomain={[0, 100]}
+                yDomain={[0, 20]}
                 lines={[
                   {
                     dataKey: "lossFraction",

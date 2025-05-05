@@ -21,6 +21,7 @@ import {
   faMessage,
   faUser,
   faArrowUpFromBracket,
+  faInfo,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Controls = () => {
@@ -66,7 +67,6 @@ const Controls = () => {
         <IconButton icon={faCode} label="Coding" />
         <IconButton icon={faChalkboard} label="Board" />
       </div> */}
-
       {/* We can either choose to use the custom control, I made using the our design or the default */}
       {/* <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-4">
         <IconButton
@@ -92,18 +92,22 @@ const Controls = () => {
           Leave
         </button>
       </div> */}
-
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-4">
         <ControlBar variation="minimal" />
       </div>
-
-      {/* Right Icons
       <div className="flex gap-2">
-        <IconButton icon={faLightbulb} label="Guide" />
+        <IconButton
+          icon={faInfo}
+          label="Show Stats"
+          onClick={() => {
+            console.log("Show stats clicked");
+          }}
+        />
+        {/* <IconButton icon={faLightbulb} label="Guide" />
         <IconButton icon={faClipboardCheck} label="Evaluate" />
         <IconButton icon={faMessage} label="Chat" />
-        <IconButton icon={faUsers} label="People" />
-      </div> */}
+        <IconButton icon={faUsers} label="People" /> */}
+      </div>
     </div>
   );
 };

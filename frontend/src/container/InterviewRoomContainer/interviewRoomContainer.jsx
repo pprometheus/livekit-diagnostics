@@ -19,7 +19,6 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
-
   const dispatch = useDispatch();
   const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
@@ -134,6 +133,58 @@ export const MyVideoConference = () => {
   );
 };
 
+let averageLossPct = 0;
+export const getStatsData = async (pc) => {
+  setInterval(async () => {
+    const stats = await pc.getStats();
+    let packetsLostAudio = 0;
+    let packetsReceivedAudio = 0;
+    let packetsLostVideo = 0;
+    let packetsReceivedVideo = 0;
+    stats.forEach((stat) => {
+      if (stat.type === "inbound-rtp" && stat.kind === "video") {
+        packetsLostVideo = stat.packetsLost;
+        packetsReceivedVideo = stat.packetsReceived;
+        // console.log(
+        //   "Subscriber Video Packets:",
+        //   "Packets Lost:",
+        //   packetsLostVideo,
+        //   "Packets Received:",
+        //   packetsReceivedVideo
+        // );
+      }
+      if (stat.type === "inbound-rtp" && stat.kind === "audio") {
+        packetsLostAudio = stat.packetsLost;
+        packetsReceivedAudio = stat.packetsReceived;
+        // console.log(
+        //   "Subscriber Audio Packets:",
+        //   "Packets Lost:",
+        //   packetsLostAudio,
+        //   "Packets Received:",
+        //   packetsReceivedAudio
+        // );
+      }
+      //
+      const audioLossP =
+        packetsLostAudio + packetsReceivedAudio > 0
+          ? (packetsLostAudio / (packetsLostAudio + packetsReceivedAudio)) * 100
+          : 0;
+      const videoLossP =
+        packetsLostVideo + packetsReceivedVideo > 0
+          ? (packetsLostVideo / (packetsLostVideo + packetsReceivedVideo)) * 100
+          : 0;
+
+      const avgLossP = (audioLossP + videoLossP) / 2;
+      averageLossPct = avgLossP.toFixed(2); 
+      //
+
+      console.log("Audio Loss Percentage:", audioLossP);
+      console.log("Video Loss Percentage:", videoLossP);
+      console.log("Average Loss Percentage:", averageLossPct);
+    });
+  }, 1000);
+};
+
 export const startStatsPolling = (pc, setStatsData, roomId) => {
   let prevBytesSent = 0;
   let prevBytesReceived = 0;
@@ -190,43 +241,11 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           upload: upBps,
           download: downBps,
           latency: rttMs,
-          lossFraction: lossFraction,
+          lossFraction: averageLossPct,
         },
       ]);
     } catch (err) {
       console.error("Stats error:", err);
     }
-  }, 1000);
-};
-
-export const getStatsData = async (pc) => {
-  setInterval(async () => {
-    const stats = await pc.getStats();
-    let packetsLost = 0;
-    let packetsReceived = 0;
-    stats.forEach((stat) => {
-      if (stat.type === "inbound-rtp" && stat.kind === "video") {
-        packetsLost = stat.packetsLost;
-        packetsReceived = stat.packetsReceived;
-        console.log(
-          "Subscriber Video Packets:",
-          "Packets Lost:",
-          packetsLost,
-          "Packets Received:",
-          packetsReceived
-        );
-      }
-      if (stat.type === "inbound-rtp" && stat.kind === "audio") {
-        packetsLost = stat.packetsLost;
-        packetsReceived = stat.packetsReceived;
-        console.log(
-          "Subscriber Audio Packets:",
-          "Packets Lost:",
-          packetsLost,
-          "Packets Received:",
-          packetsReceived
-        );
-      }
-    });
   }, 1000);
 };

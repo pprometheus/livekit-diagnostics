@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { MediaDeviceSelect } from "@livekit/components-react";
 import TopBar from "../TopBar";
 import Controls from "../Controls";
 import Sidebar from "../SideBar";
@@ -39,7 +40,7 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
                 data={statsData}
                 xDataKey="time"
                 yDomain={[0, 100]}
-                yTickFormatter={(value) => `${(value / 1e6).toFixed(1)}`}
+                yTickFormatter={(value) => `${(value / 1e6).toFixed(2)}`}
                 lines={[
                   {
                     dataKey: "download",

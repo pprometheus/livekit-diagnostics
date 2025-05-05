@@ -90,6 +90,9 @@ export default function InterviewRoomContainer() {
 
       const publisherPc = roomA.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
+
+      const subscriberPc = roomB.engine.pcManager.subscriber._pc;
+      if (subscriberPc) getStatsData(subscriberPc);
     };
 
     connectRoom();
@@ -143,10 +146,10 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       let rttMs = 0;
       let packetsLost = 0;
       let packetsReceived = 0;
-      let fractionLost = 0; // Fraction of packets lost
+      let fractionLost = 0;
 
       stats.forEach((stat) => {
-        console.log("Stat:", stat);
+        // console.log("Stat:", stat);
         if (stat.type === "transport") {
           upBps = stat.bytesSent - prevBytesSent;
           downBps = stat.bytesReceived - prevBytesReceived;
@@ -162,21 +165,21 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           fractionLost = stat.fractionLost || 0; // Fraction of packets lost
         }
       });
-      console.log(
-        "Packets Lost:",
-        packetsLost,
-        "Fraction Lost:",
-        fractionLost,
-        "Packets Recived:",
-        packetsReceived
-      );
+      // console.log(
+      //   "Packets Lost:",
+      //   packetsLost,
+      //   "Fraction Lost:",
+      //   fractionLost,
+      //   "Packets Recived:",
+      //   packetsReceived
+      // );
 
       // const lossFraction =
       //   packetsLost + packetsReceived > 0
       //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
       //     : 0;
       const lossFraction = fractionLost;
-      console.log("Loss Fraction:", lossFraction);
+      // console.log("Loss Fraction:", lossFraction);
       const timestamp = DateTime.now().toFormat("hh:mm a");
 
       setStatsData((prev) => [
@@ -193,5 +196,37 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
     } catch (err) {
       console.error("Stats error:", err);
     }
+  }, 1000);
+};
+
+export const getStatsData = async (pc) => {
+  setInterval(async () => {
+    const stats = await pc.getStats();
+    let packetsLost = 0;
+    let packetsReceived = 0;
+    stats.forEach((stat) => {
+      if (stat.type === "inbound-rtp" && stat.kind === "video") {
+        packetsLost = stat.packetsLost;
+        packetsReceived = stat.packetsReceived;
+        console.log(
+          "Subscriber Video Packets:",
+          "Packets Lost:",
+          packetsLost,
+          "Packets Received:",
+          packetsReceived
+        );
+      }
+      if (stat.type === "inbound-rtp" && stat.kind === "audio") {
+        packetsLost = stat.packetsLost;
+        packetsReceived = stat.packetsReceived;
+        console.log(
+          "Subscriber Audio Packets:",
+          "Packets Lost:",
+          packetsLost,
+          "Packets Received:",
+          packetsReceived
+        );
+      }
+    });
   }, 1000);
 };

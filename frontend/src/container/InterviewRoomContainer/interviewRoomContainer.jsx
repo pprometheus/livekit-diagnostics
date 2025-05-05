@@ -15,7 +15,7 @@ import {
 import InterviewRoom from "../../components/InterviewRoom";
 import { DateTime } from "luxon";
 
-const serverUrl = "wss://test-bsueauex.livekit.cloud";
+const serverUrl = import.meta.env.VITE_API_URL;
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
@@ -23,13 +23,7 @@ export default function InterviewRoomContainer() {
   const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
 
-  const [roomA] = useState(
-    () =>
-      new Room({
-        adaptiveStream: false,
-        dynacast: false,
-      })
-  );
+  const [roomA] = useState(() => new Room({}));
 
   const [roomB] = useState(
     () =>
@@ -175,12 +169,12 @@ export const getStatsData = async (pc) => {
           : 0;
 
       const avgLossP = (audioLossP + videoLossP) / 2;
-      averageLossPct = avgLossP.toFixed(2); 
+      averageLossPct = avgLossP.toFixed(2);
       //
 
-      console.log("Audio Loss Percentage:", audioLossP);
-      console.log("Video Loss Percentage:", videoLossP);
-      console.log("Average Loss Percentage:", averageLossPct);
+      // console.log("Audio Loss Percentage:", audioLossP);
+      // console.log("Video Loss Percentage:", videoLossP);
+      // console.log("Average Loss Percentage:", averageLossPct);
     });
   }, 1000);
 };
@@ -227,7 +221,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
 
       // const lossFraction =
       //   packetsLost + packetsReceived > 0
-      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
+      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 
       //     : 0;
       const lossFraction = fractionLost;
       // console.log("Loss Fraction:", lossFraction);

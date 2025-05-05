@@ -19,7 +19,6 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
-
   const dispatch = useDispatch();
   const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
@@ -90,6 +89,9 @@ export default function InterviewRoomContainer() {
 
       const publisherPc = roomA.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
+
+      const subscriberPc = roomB.engine.pcManager.subscriber._pc;
+      if (subscriberPc) getStatsData(subscriberPc);
     };
 
     connectRoom();
@@ -131,6 +133,58 @@ export const MyVideoConference = () => {
   );
 };
 
+let averageLossPct = 0;
+export const getStatsData = async (pc) => {
+  setInterval(async () => {
+    const stats = await pc.getStats();
+    let packetsLostAudio = 0;
+    let packetsReceivedAudio = 0;
+    let packetsLostVideo = 0;
+    let packetsReceivedVideo = 0;
+    stats.forEach((stat) => {
+      if (stat.type === "inbound-rtp" && stat.kind === "video") {
+        packetsLostVideo = stat.packetsLost;
+        packetsReceivedVideo = stat.packetsReceived;
+        // console.log(
+        //   "Subscriber Video Packets:",
+        //   "Packets Lost:",
+        //   packetsLostVideo,
+        //   "Packets Received:",
+        //   packetsReceivedVideo
+        // );
+      }
+      if (stat.type === "inbound-rtp" && stat.kind === "audio") {
+        packetsLostAudio = stat.packetsLost;
+        packetsReceivedAudio = stat.packetsReceived;
+        // console.log(
+        //   "Subscriber Audio Packets:",
+        //   "Packets Lost:",
+        //   packetsLostAudio,
+        //   "Packets Received:",
+        //   packetsReceivedAudio
+        // );
+      }
+      //
+      const audioLossP =
+        packetsLostAudio + packetsReceivedAudio > 0
+          ? (packetsLostAudio / (packetsLostAudio + packetsReceivedAudio)) * 100
+          : 0;
+      const videoLossP =
+        packetsLostVideo + packetsReceivedVideo > 0
+          ? (packetsLostVideo / (packetsLostVideo + packetsReceivedVideo)) * 100
+          : 0;
+
+      const avgLossP = (audioLossP + videoLossP) / 2;
+      averageLossPct = avgLossP.toFixed(2); 
+      //
+
+      console.log("Audio Loss Percentage:", audioLossP);
+      console.log("Video Loss Percentage:", videoLossP);
+      console.log("Average Loss Percentage:", averageLossPct);
+    });
+  }, 1000);
+};
+
 export const startStatsPolling = (pc, setStatsData, roomId) => {
   let prevBytesSent = 0;
   let prevBytesReceived = 0;
@@ -143,10 +197,10 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       let rttMs = 0;
       let packetsLost = 0;
       let packetsReceived = 0;
-      let fractionLost = 0; // Fraction of packets lost
+      let fractionLost = 0;
 
       stats.forEach((stat) => {
-        console.log("Stat:", stat);
+        // console.log("Stat:", stat);
         if (stat.type === "transport") {
           upBps = stat.bytesSent - prevBytesSent;
           downBps = stat.bytesReceived - prevBytesReceived;
@@ -162,21 +216,21 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           fractionLost = stat.fractionLost || 0; // Fraction of packets lost
         }
       });
-      console.log(
-        "Packets Lost:",
-        packetsLost,
-        "Fraction Lost:",
-        fractionLost,
-        "Packets Recived:",
-        packetsReceived
-      );
+      // console.log(
+      //   "Packets Lost:",
+      //   packetsLost,
+      //   "Fraction Lost:",
+      //   fractionLost,
+      //   "Packets Recived:",
+      //   packetsReceived
+      // );
 
       // const lossFraction =
       //   packetsLost + packetsReceived > 0
       //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 // Convert to percentage
       //     : 0;
       const lossFraction = fractionLost;
-      console.log("Loss Fraction:", lossFraction);
+      // console.log("Loss Fraction:", lossFraction);
       const timestamp = DateTime.now().toFormat("hh:mm a");
 
       setStatsData((prev) => [
@@ -187,7 +241,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           upload: upBps,
           download: downBps,
           latency: rttMs,
-          lossFraction: lossFraction,
+          lossFraction: averageLossPct,
         },
       ]);
     } catch (err) {

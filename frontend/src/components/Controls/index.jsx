@@ -93,9 +93,11 @@ const Controls = ({ onToggleSidebar }) => {
         </button>
       </div> */}
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-4">
-        <ControlBar variation="minimal"/>
-        <IconButton icon={faInfo} onClick={onToggleSidebar} />
-
+        <ControlBar variation="minimal" />
+        <IconButton 
+          icon={<FontAwesomeIcon icon={faInfo} />}
+          onClick={onToggleSidebar}
+        />
       </div>
       <div className="flex gap-2">
         {/* <IconButton icon={faLightbulb} label="Guide" />

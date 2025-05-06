@@ -1,7 +1,7 @@
 import React from "react";
 import IconButton from ".";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faInfo } from "@fortawesome/free-solid-svg-icons";
 const meta = {
   title: "Components/IconButton",
   component: IconButton,
@@ -15,7 +15,7 @@ export default meta;
 
 export const Default = {
   args: {
-    icon: <FontAwesomeIcon icon={faArrowLeft} />,
+    icon: <FontAwesomeIcon icon={faInfo} color="white" />,
     label: "Back",
   },
 };

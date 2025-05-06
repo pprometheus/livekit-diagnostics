@@ -1,49 +1,48 @@
-import React from "react";
-import { DateTime } from "luxon";
-import Chart from ".";
+// src/components/Chart.stories.tsx
+import React, { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
+import Chart from '.';
 
-const meta = {
-  title: "Components/Chart",
+export default {
+  title: 'Components/Chart',
   component: Chart,
-  tags: ["autodocs"],
 };
 
-export default meta;
+export const LiveUpdatingChart = () => {
+  // initial timestamps at 1‑minute intervals
+  const [data, setData] = useState(
+    Array.from({ length: 8 }).map((_, i) => ({
+      time: DateTime.now().minus({ minutes: 7 - i }).toFormat('hh:mm a'),
+      value: Math.random() * 100,
+    }))
+  );
 
-const sampleData = [
-  { time: "01:00 AM", value1: 10, value2: 15 },
-  { time: "02:00 AM", value1: 20, value2: 25 },
-  { time: "03:00 AM", value1: 15, value2: 30 },
-  { time: "04:00 AM", value1: 25, value2: 35 },
-];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setData((old) => {
+        // drop the oldest and add a new random point
+        const nextTime = DateTime.now().toFormat('hh:mm a');
+        const nextValue = Math.random() * 100;
+        return [
+          ...old.slice(1),
+          { time: nextTime, value: nextValue },
+        ];
+      });
+    }, 2000); // every 2 seconds
 
-export const Default = {
-  args: {
-    title: "Sample Line Chart",
-    data: sampleData,
-    xDataKey: "time",
-    lines: [
-      { dataKey: "value1", name: "Metric A", stroke: "#8884d8" },
-      { dataKey: "value2", name: "Metric B", stroke: "#82ca9d" },
-    ],
-    unit: "",
-  },
-};
+    return () => clearInterval(interval);
+  }, []);
 
-export const WithCustomYTicks = {
-  args: {
-    ...Default.args,
-    title: "With Custom Y Tick Formatter",
-    yTickFormatter: (value) => `$${value.toFixed(2)}`,
-  },
-};
-
-export const SingleLine = {
-  args: {
-    title: "Single Line Chart",
-    data: sampleData,
-    xDataKey: "time",
-    lines: [{ dataKey: "value1", name: "Only Metric", stroke: "#ff7300" }],
-    unit: "",
-  },
+  return (
+    <Chart
+      title="Live Metrics"
+      data={data}
+      xDataKey="time"
+      lines={[{ dataKey: 'value', name: 'Value', stroke: '#82ca9d' }]}
+      yDomain={[0, 100]} // Example domain for y-axis
+      unit="%" // Example unit for values
+      yTickFormatter={(value) => `${value}%`} // Example formatter for y-axis ticks
+      // pass through any animation props if needed
+    />
+  );
 };

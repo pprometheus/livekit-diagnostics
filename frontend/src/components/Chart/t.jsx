@@ -9,11 +9,10 @@ import {
   TimeScale,
   Tooltip,
 } from "chart.js";
-import streamingPlugin from "chartjs-plugin-streaming"; // Import the streaming plugin
-import "chartjs-adapter-moment"; // Import the moment adapter for Chart.js
+import streamingPlugin from "chartjs-plugin-streaming"; 
+import "chartjs-adapter-moment"; 
 import moment from "moment";
 
-// Register required components and the streaming plugin
 ChartJS.register(
   LineElement,
   PointElement,
@@ -38,7 +37,7 @@ const data = {
   datasets: [
     {
       label: "Dataset 1 (linear interpolation)",
-      backgroundColor: "rgba(255, 99, 132, 0.5)", // Use RGBA directly
+      backgroundColor: "rgba(255, 99, 132, 0.5)", 
       borderColor: chartColors.red,
       fill: false,
       lineTension: 0,
@@ -56,7 +55,7 @@ const options = {
   },
   scales: {
     x: {
-      type: "realtime", // Use the realtime scale provided by the streaming plugin
+      type: "realtime", 
       realtime: {
         onRefresh: function (chart) {
           chart.data.datasets[0].data.push({

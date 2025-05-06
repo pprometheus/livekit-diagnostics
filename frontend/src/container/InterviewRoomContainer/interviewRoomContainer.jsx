@@ -1,10 +1,11 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   GridLayout,
   ParticipantTile,
   useTracks,
 } from "@livekit/components-react";
-import { Track as LKTrack, Room } from "livekit-client";
+import { Track as LKTrack, Room, RoomEvent } from "livekit-client";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchToken,
@@ -14,6 +15,7 @@ import {
 } from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
 import { DateTime } from "luxon";
+import Loader from "../../components/Loader";
 
 const serverUrl = import.meta.env.VITE_API_URL;
 
@@ -25,13 +27,7 @@ export default function InterviewRoomContainer() {
 
   const [roomA] = useState(() => new Room({}));
 
-  const [roomB] = useState(
-    () =>
-      new Room({
-        adaptiveStream: false,
-        dynacast: false,
-      })
-  );
+  const [roomB] = useState(() => new Room({}));
 
   useEffect(() => {
     dispatch(fetchToken({ participantName: "peerA" }));
@@ -71,13 +67,11 @@ export default function InterviewRoomContainer() {
     const connectRoom = async () => {
       if (!mounted) return;
 
-      await roomA.connect(serverUrl, token);
+      await roomA.connect(serverUrl, token, { reconnect: true });
       await roomA.localParticipant?.setMicrophoneEnabled(true);
       await roomA.localParticipant?.setCameraEnabled(true);
 
-      if (tokenB) await roomB?.connect(serverUrl, tokenB);
-      // await roomB.localParticipant?.setMicrophoneEnabled(true);
-      // await roomB.localParticipant?.setCameraEnabled(true);
+      if (tokenB) await roomB?.connect(serverUrl, tokenB, { reconnect: true });
 
       console.log("roomB connected:", roomB, roomA);
 
@@ -96,14 +90,17 @@ export default function InterviewRoomContainer() {
     };
   }, [roomA, token, tokenB]);
 
-  return (
-    <InterviewRoom
-      token={token}
-      roomA={roomA}
-      statsData={statsData}
-      //   subscriberData={subscriberData}
-    />
-  );
+  const ready =
+    roomA.state === RoomEvent.Connected &&
+    roomB.state === RoomEvent.Connected &&
+    roomA.engine.pcManager.publisher._pc &&
+    roomB.engine.pcManager.subscriber._pc;
+
+  if (!ready) {
+    return <Loader />;
+  }
+
+  return <InterviewRoom token={token} roomA={roomA} statsData={statsData} />;
 }
 
 export const MyVideoConference = () => {
@@ -139,26 +136,11 @@ export const getStatsData = async (pc) => {
       if (stat.type === "inbound-rtp" && stat.kind === "video") {
         packetsLostVideo = stat.packetsLost;
         packetsReceivedVideo = stat.packetsReceived;
-        // console.log(
-        //   "Subscriber Video Packets:",
-        //   "Packets Lost:",
-        //   packetsLostVideo,
-        //   "Packets Received:",
-        //   packetsReceivedVideo
-        // );
       }
       if (stat.type === "inbound-rtp" && stat.kind === "audio") {
         packetsLostAudio = stat.packetsLost;
         packetsReceivedAudio = stat.packetsReceived;
-        // console.log(
-        //   "Subscriber Audio Packets:",
-        //   "Packets Lost:",
-        //   packetsLostAudio,
-        //   "Packets Received:",
-        //   packetsReceivedAudio
-        // );
       }
-      //
       const audioLossP =
         packetsLostAudio + packetsReceivedAudio > 0
           ? (packetsLostAudio / (packetsLostAudio + packetsReceivedAudio)) * 100
@@ -170,11 +152,6 @@ export const getStatsData = async (pc) => {
 
       const avgLossP = (audioLossP + videoLossP) / 2;
       averageLossPct = avgLossP.toFixed(2);
-      //
-
-      // console.log("Audio Loss Percentage:", audioLossP);
-      // console.log("Video Loss Percentage:", videoLossP);
-      // console.log("Average Loss Percentage:", averageLossPct);
     });
   }, 1000);
 };
@@ -189,12 +166,8 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       let upBps = 0;
       let downBps = 0;
       let rttMs = 0;
-      let packetsLost = 0;
-      let packetsReceived = 0;
-      let fractionLost = 0;
 
       stats.forEach((stat) => {
-        // console.log("Stat:", stat);
         if (stat.type === "transport") {
           upBps = stat.bytesSent - prevBytesSent;
           downBps = stat.bytesReceived - prevBytesReceived;
@@ -204,31 +177,23 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         if (stat.type === "candidate-pair" && stat.state === "succeeded") {
           rttMs = stat.currentRoundTripTime * 1000;
         }
-        if (stat.type === "remote-inbound-rtp") {
-          packetsLost = stat.packetsLost || 0; // Total packets lost
-          packetsReceived = stat.packetsReceived; // Total packets received
-          fractionLost = stat.fractionLost || 0; // Fraction of packets lost
-        }
+        // if (stat.type === "remote-inbound-rtp") {
+        //   packetsLost = stat.packetsLost || 0;
+        //   packetsReceived = stat.packetsReceived;
+        //   fractionLost = stat.fractionLost || 0; /
+        // }
       });
-      // console.log(
-      //   "Packets Lost:",
-      //   packetsLost,
-      //   "Fraction Lost:",
-      //   fractionLost,
-      //   "Packets Recived:",
-      //   packetsReceived
-      // );
 
       // const lossFraction =
       //   packetsLost + packetsReceived > 0
-      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 
+      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100
       //     : 0;
-      const lossFraction = fractionLost;
+      // const lossFraction = fractionLost;
       // console.log("Loss Fraction:", lossFraction);
       const timestamp = DateTime.now().toFormat("hh:mm:ss a");
 
       setStatsData((prev) => [
-        ...prev.slice(-19),
+        ...prev.slice(-5),
         {
           roomId: roomId,
           time: timestamp,

@@ -47,6 +47,7 @@ const Chart = ({
               return dt.isValid ? dt.toFormat("hh:mm a") : value;
             }}
             width={40}
+            padding={{ right: 30 }}
           />
           <YAxis
             orientation="right"
@@ -88,8 +89,7 @@ const Chart = ({
               stroke={line.stroke}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4 }}
-            />
+              activeDot={{ r: 4 }}            />
           ))}
         </LineChart>
       </ResponsiveContainer>

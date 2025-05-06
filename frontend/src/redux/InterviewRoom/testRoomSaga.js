@@ -1,4 +1,3 @@
-// redux/testRoom/testRoomSaga.js
 import { takeLatest, put, call } from "redux-saga/effects";
 import { fetchToken, fetchTokenB, setToken, tokenStatus } from "./testRoomSlice";
 import {getToken} from "../../utils/helper";

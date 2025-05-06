@@ -1,10 +1,12 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   GridLayout,
   ParticipantTile,
   useTracks,
 } from "@livekit/components-react";
-import { Track as LKTrack, Room } from "livekit-client";
+import { Track as LKTrack, Room, RoomEvent } from "livekit-client";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchToken,
@@ -14,6 +16,7 @@ import {
 } from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
 import { DateTime } from "luxon";
+import Loader from "../../components/Loader";
 
 const serverUrl = import.meta.env.VITE_API_URL;
 
@@ -22,16 +25,11 @@ export default function InterviewRoomContainer() {
   const dispatch = useDispatch();
   const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
+  const [connected, setConnected] = useState(false);
 
   const [roomA] = useState(() => new Room({}));
 
-  const [roomB] = useState(
-    () =>
-      new Room({
-        adaptiveStream: false,
-        dynacast: false,
-      })
-  );
+  const [roomB] = useState(() => new Room({}));
 
   useEffect(() => {
     dispatch(fetchToken({ participantName: "peerA" }));
@@ -76,8 +74,6 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setCameraEnabled(true);
 
       if (tokenB) await roomB?.connect(serverUrl, tokenB);
-      // await roomB.localParticipant?.setMicrophoneEnabled(true);
-      // await roomB.localParticipant?.setCameraEnabled(true);
 
       console.log("roomB connected:", roomB, roomA);
 
@@ -96,14 +92,17 @@ export default function InterviewRoomContainer() {
     };
   }, [roomA, token, tokenB]);
 
-  return (
-    <InterviewRoom
-      token={token}
-      roomA={roomA}
-      statsData={statsData}
-      //   subscriberData={subscriberData}
-    />
-  );
+  const ready =
+    roomA.state === RoomEvent.Connected &&
+    roomB.state === RoomEvent.Connected &&
+    roomA.engine.pcManager.publisher._pc &&
+    roomB.engine.pcManager.subscriber._pc;
+
+  if (!ready) {
+    return <Loader />;
+  }
+
+  return <InterviewRoom token={token} roomA={roomA} statsData={statsData} />;
 }
 
 export const MyVideoConference = () => {
@@ -221,14 +220,14 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
 
       // const lossFraction =
       //   packetsLost + packetsReceived > 0
-      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100 
+      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100
       //     : 0;
       const lossFraction = fractionLost;
       // console.log("Loss Fraction:", lossFraction);
       const timestamp = DateTime.now().toFormat("hh:mm:ss a");
 
       setStatsData((prev) => [
-        ...prev.slice(-19),
+        ...prev.slice(-5),
         {
           roomId: roomId,
           time: timestamp,

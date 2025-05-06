@@ -7,11 +7,10 @@ import "@livekit/components-styles";
 import Chart from "../Chart";
 import { MyVideoConference } from "../../container/InterviewRoomContainer/interviewRoomContainer";
 
-const InterviewRoom = ({ token, roomA, statsData}) => {
+const InterviewRoom = ({ token, roomA, statsData }) => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   const toggleSidebar = () => setIsSidebarVisible((v) => !v);
-
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -23,7 +22,6 @@ const InterviewRoom = ({ token, roomA, statsData}) => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
-  if (!token) return <div>Loading...</div>;
 
   return (
     <div className="w-full h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
@@ -36,7 +34,6 @@ const InterviewRoom = ({ token, roomA, statsData}) => {
 
           {isSidebarVisible && (
             <Sidebar>
-              <span className="text-sm text-white">Network Connected via:</span>
               <Chart
                 title="Bandwidth (Mbps)"
                 data={statsData}
@@ -84,7 +81,7 @@ const InterviewRoom = ({ token, roomA, statsData}) => {
           )}
         </div>
 
-        <Controls onToggleSidebar={toggleSidebar}/>
+        <Controls onToggleSidebar={toggleSidebar} />
       </RoomContext.Provider>
     </div>
   );

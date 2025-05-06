@@ -1,4 +1,3 @@
-// utils/helper.js
 import {Cookies } from "react-cookie"
 import axios from "axios";
 const cookies = new Cookies();

@@ -225,7 +225,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
       //     : 0;
       const lossFraction = fractionLost;
       // console.log("Loss Fraction:", lossFraction);
-      const timestamp = DateTime.now().toFormat("hh:mm a");
+      const timestamp = DateTime.now().toFormat("hh:mm:ss a");
 
       setStatsData((prev) => [
         ...prev.slice(-19),

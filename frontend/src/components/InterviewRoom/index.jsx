@@ -7,8 +7,11 @@ import "@livekit/components-styles";
 import Chart from "../Chart";
 import { MyVideoConference } from "../../container/InterviewRoomContainer/interviewRoomContainer";
 
-const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
+const InterviewRoom = ({ token, roomA, statsData}) => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+
+  const toggleSidebar = () => setIsSidebarVisible((v) => !v);
+
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -81,7 +84,7 @@ const InterviewRoom = ({ token, roomA, statsData, subscriberData }) => {
           )}
         </div>
 
-        <Controls />
+        <Controls onToggleSidebar={toggleSidebar}/>
       </RoomContext.Provider>
     </div>
   );

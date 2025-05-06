@@ -37,14 +37,16 @@ const Chart = ({
           <XAxis
             dataKey={xDataKey}
             stroke="#718096"
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 10 }}
+            tickCount={4}
             tickLine={{ stroke: "transparent" }}
             axisLine={{ stroke: "#2D3748" }}
-            interval="preserveStartEnd"
+            interval="0"
             tickFormatter={(value) => {
               const dt = DateTime.fromFormat(value, "hh:mm a");
               return dt.isValid ? dt.toFormat("hh:mm a") : value;
             }}
+            width={40}
           />
           <YAxis
             orientation="right"
@@ -79,6 +81,7 @@ const Chart = ({
           {lines.map((line) => (
             <Line
               key={line.dataKey}
+              isAnimationActive={false}
               type="monotone"
               dataKey={line.dataKey}
               name={line.name}

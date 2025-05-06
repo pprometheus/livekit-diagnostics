@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Chart Component matches snapshot 1`] = `
+<div
+  data-testid="line-chart"
+>
+  <div>
+    CartesianGrid
+  </div>
+  <div>
+    XAxis
+  </div>
+  <div>
+    YAxis
+  </div>
+  <div>
+    Tooltip
+  </div>
+  <div>
+    Line
+  </div>
+</div>
+`;

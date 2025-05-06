@@ -24,7 +24,7 @@ import {
   faInfo,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Controls = () => {
+const Controls = ({ onToggleSidebar }) => {
   const room = useRoomContext();
   if (!room) return null;
   const participant = room.localParticipant;
@@ -94,15 +94,12 @@ const Controls = () => {
       </div> */}
       <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-4">
         <ControlBar variation="minimal" />
+        <IconButton 
+          icon={<FontAwesomeIcon icon={faInfo} />}
+          onClick={onToggleSidebar}
+        />
       </div>
       <div className="flex gap-2">
-        <IconButton
-          icon={faInfo}
-          label="Show Stats"
-          onClick={() => {
-            console.log("Show stats clicked");
-          }}
-        />
         {/* <IconButton icon={faLightbulb} label="Guide" />
         <IconButton icon={faClipboardCheck} label="Evaluate" />
         <IconButton icon={faMessage} label="Chat" />

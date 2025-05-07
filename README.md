@@ -74,9 +74,6 @@ Connected via Mobile Network
 [Link](https://talviewinc-my.sharepoint.com/:f:/g/personal/amith_paul_talview_com/EoQL-RPp8FtCtO-pLiZCv2MBO3gg9381k6U7mLBMVJ6mYA?tdid=55b867db-696e-4e60-adb1-beb132705bbe)
 
 ### References
-
-https://video-diagnostics.talview.org/
-
 - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
 - https://docs.livekit.io/home/
 - https://webrtc.org/

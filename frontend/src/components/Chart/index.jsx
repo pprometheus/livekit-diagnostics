@@ -20,6 +20,7 @@ const Chart = ({
   yDomain,
   unit,
   yTickFormatter,
+  showLegend = false,
 }) => (
   <div
     className={`bg-gray-900 rounded-lg shadow p-2 flex flex-col flex-1 ${className}`}
@@ -79,6 +80,17 @@ const Chart = ({
             }}
             position={{ x: 0, y: 0 }}
           />
+          {showLegend && (
+            <Legend
+              verticalAlign="bottom"
+              align="center"
+              wrapperStyle={{
+                paddingBottom: 8,
+                color: '#CBD5E0',
+                fontSize: 12,
+              }}
+            />
+          )}
           {lines.map((line) => (
             <Line
               key={line.dataKey}
@@ -89,7 +101,8 @@ const Chart = ({
               stroke={line.stroke}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4 }}            />
+              activeDot={{ r: 4 }}
+            />
           ))}
         </LineChart>
       </ResponsiveContainer>

@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import TopBar from "../TopBar";
 import Controls from "../Controls";
 import Sidebar from "../SideBar";
-import { RoomAudioRenderer, RoomContext, Toast } from "@livekit/components-react";
+import {
+  RoomAudioRenderer,
+  RoomContext,
+  Toast,
+} from "@livekit/components-react";
 import "@livekit/components-styles";
 import Chart from "../Chart";
 import { MyVideoConference } from "../../container/InterviewRoomContainer/interviewRoomContainer";
@@ -21,7 +25,6 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
-
 
   return (
     <div className="w-full h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
@@ -52,6 +55,7 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
                     stroke: "#cc88ff",
                   },
                 ]}
+                showLegend={true}
               />
 
               <Chart

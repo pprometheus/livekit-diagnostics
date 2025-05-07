@@ -106,6 +106,7 @@ export default function InterviewRoomContainer() {
     if (hasCameraAccess !== true || hasMicAccess !== true) return;
 
     let mounted = true;
+    const connectingToast = toast.loading("Connecting");
 
     const connectRoom = async () => {
       if (!mounted) return;

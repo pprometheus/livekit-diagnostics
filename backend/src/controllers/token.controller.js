@@ -21,19 +21,15 @@ export const getToken = async (req, res) => {
     const token = await at.toJwt();
 
     res.cookie(`token${participantName}`, token, {
-      secure: true, 
-      sameSite: "strict", 
-      maxAge: 10 * 60 * 1000, 
+      secure: true,
+      sameSite: "strict",
+      maxAge: 10 * 60 * 1000,
     });
 
-   
     res.json({
-      token,
-      roomName: roomName,
-      participantName: participantName,
+      status: 201,
+      message: "Token created successfully",
     });
-
-    console.log("Token created for participant:", participantName);
   } catch (error) {
     console.error("Error creating token:", error);
     res.status(500).send("Failed to create token");

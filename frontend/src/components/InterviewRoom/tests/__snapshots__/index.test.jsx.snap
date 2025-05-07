@@ -20,11 +20,6 @@ exports[`InterviewRoom Component to match snapshot 1`] = `
       <div
         data-testid="sidebar"
       >
-        <span
-          class="text-sm text-white"
-        >
-          Network Connected via:
-        </span>
         <div
           data-testid="chart"
         />

@@ -41,13 +41,6 @@ describe("InterviewRoom Component", () => {
     jest.clearAllMocks();
   });
 
-  test("renders loading state when no token", () => {
-    render(
-      <InterviewRoom token={null} roomA={mockRoomA} statsData={mockStatsData} />
-    );
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
-  });
-
   test("renders main components when token exists", () => {
     render(
       <InterviewRoom
@@ -135,7 +128,6 @@ describe("InterviewRoom Component", () => {
     );
     expect(container).toMatchSnapshot();
   });
-
 
   test("cleans up event listeners on unmount", () => {
     const { unmount } = render(

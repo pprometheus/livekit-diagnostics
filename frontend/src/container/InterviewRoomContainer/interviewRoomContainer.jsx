@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import {
   GridLayout,
   ParticipantTile,
@@ -26,8 +27,10 @@ export default function InterviewRoomContainer() {
   const token = useSelector(selectPeerA).token;
 
   const [roomA] = useState(() => new Room({}));
-
   const [roomB] = useState(() => new Room({}));
+
+  const [hasCameraAccess, setHasCameraAccess] = useState(null);
+  const [hasMicAccess, setHasMicAccess] = useState(null);
 
   useEffect(() => {
     dispatch(fetchToken({ participantName: "peerA" }));
@@ -36,6 +39,41 @@ export default function InterviewRoomContainer() {
   useEffect(() => {
     dispatch(fetchTokenB({ participantName: "peerB" }));
   }, []);
+
+  const requestPermissions = async () => {
+    let loadingToast;
+    try {
+      toast.dismiss();
+      loadingToast = toast.loading("Requesting permissions...");
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      stream.getTracks().forEach((track) => track.stop());
+
+      setHasCameraAccess(true);
+      setHasMicAccess(true);
+      toast.dismiss(loadingToast);
+    } catch (err) {
+      toast.dismiss(loadingToast);
+
+      let camDenied = false;
+      let micDenied = false;
+
+      if (camDenied || micDenied) {
+        toast.dismiss();
+        toast.error({ duration: Infinity });
+      } else {
+        toast.dismiss();
+        toast.error("Please allow camera and microphone access", {
+          duration: Infinity,
+        });
+        console.error("Media access error:", err);
+      }
+    }
+  };
 
   // useEffect(() => {
   //   if (!token || !tokenB) return;
@@ -60,7 +98,12 @@ export default function InterviewRoomContainer() {
   // }, [dispatch, token, tokenB, roomA, roomB]);
 
   useEffect(() => {
+    requestPermissions();
+  }, []);
+
+  useEffect(() => {
     if (!token || !tokenB) return;
+    if (hasCameraAccess !== true || hasMicAccess !== true) return;
 
     let mounted = true;
 
@@ -87,20 +130,32 @@ export default function InterviewRoomContainer() {
     return () => {
       mounted = false;
       roomA.disconnect();
+      roomB.disconnect();
     };
-  }, [roomA, token, tokenB]);
+  }, [roomA, token, tokenB, hasCameraAccess, hasMicAccess]);
 
   const ready =
+    hasCameraAccess === true &&
+    hasMicAccess === true &&
     roomA.state === RoomEvent.Connected &&
     roomB.state === RoomEvent.Connected &&
     roomA.engine.pcManager.publisher._pc &&
     roomB.engine.pcManager.subscriber._pc;
 
   if (!ready) {
-    return <Loader />;
+    return (
+      <>
+        <Toaster position="top-right" reverseOrder={false} />
+        <Loader />;
+      </>
+    );
   }
 
-  return <InterviewRoom token={token} roomA={roomA} statsData={statsData} />;
+  return (
+    <>
+      <InterviewRoom token={token} roomA={roomA} statsData={statsData} />
+    </>
+  );
 }
 
 export const MyVideoConference = () => {

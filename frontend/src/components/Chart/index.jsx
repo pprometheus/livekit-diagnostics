@@ -38,10 +38,10 @@ const Chart = ({
             dataKey={xDataKey}
             stroke="#718096"
             tick={{ fontSize: 10 }}
-            tickCount={4}
+            tickCount={3}
+            minTickGap={20}
             tickLine={{ stroke: "transparent" }}
             axisLine={{ stroke: "#2D3748" }}
-            interval="0"
             tickFormatter={(value) => {
               const dt = DateTime.fromFormat(value, "hh:mm a");
               return dt.isValid ? dt.toFormat("hh:mm a") : value;

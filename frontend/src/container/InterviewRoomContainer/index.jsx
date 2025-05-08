@@ -21,7 +21,7 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
   const dispatch = useDispatch();
-  const token = useSelector(selectPeerA).token;
+  const token = useSelector(selectPeerA)?.token;
 
   const [roomA] = useState(() => new Room({}));
 

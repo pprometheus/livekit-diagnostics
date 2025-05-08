@@ -20,21 +20,24 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
+  const [peerName, setPeerName] = useState(null);
+
   const dispatch = useDispatch();
-  const token = useSelector(selectPeerByName("peerA"))?.token;
+  const token = useSelector(selectPeerByName(peerName))?.token;
 
   const [roomA] = useState(() => new Room({}));
 
-  const [peerName, setPeerName] = useState(null);
   const [hasCameraAccess, setHasCameraAccess] = useState(null);
   const [hasMicAccess, setHasMicAccess] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const name = params.get("peerName");
+    const name = params.get("peerName") || "peerA";
     console.log("name", name);
     setPeerName(name);
-    dispatch(fetchToken({ participantName: peerName ? peerName : "peerA" }));
+    console.log("name state", peerName);
+
+    dispatch(fetchToken({ participantName: name }));
     requestPermissions();
   }, []);
 

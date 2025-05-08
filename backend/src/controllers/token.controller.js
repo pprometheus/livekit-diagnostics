@@ -20,13 +20,8 @@ export const getToken = async (req, res) => {
 
     const token = await at.toJwt();
 
-    res.cookie(`token${participantName}`, token, {
-      secure: true,
-      sameSite: "strict",
-      maxAge: 10 * 60 * 1000,
-    });
-
     res.json({
+      token,
       status: 201,
       message: "Token created successfully",
     });

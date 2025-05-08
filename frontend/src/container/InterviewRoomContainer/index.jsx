@@ -10,7 +10,7 @@ import { Track as LKTrack, Room, RoomEvent } from "livekit-client";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchToken,
-  selectPeerA,
+  selectPeerByName,
 } from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
 import { DateTime } from "luxon";
@@ -21,15 +21,20 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
   const dispatch = useDispatch();
-  const token = useSelector(selectPeerA)?.token;
+  const token = useSelector(selectPeerByName("peerA"))?.token;
 
   const [roomA] = useState(() => new Room({}));
 
+  const [peerName, setPeerName] = useState(null);
   const [hasCameraAccess, setHasCameraAccess] = useState(null);
   const [hasMicAccess, setHasMicAccess] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchToken({ participantName: "peerA" }));
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("peerName");
+    console.log("name", name);
+    setPeerName(name);
+    dispatch(fetchToken({ participantName: peerName ? peerName : "peerA" }));
     requestPermissions();
   }, []);
 
@@ -69,8 +74,13 @@ export default function InterviewRoomContainer() {
   };
 
   useEffect(() => {
-    if (!token) return;
-        if (hasCameraAccess !== true || hasMicAccess !== true) return;
+    if (
+      !peerName ||
+      !token ||
+      hasCameraAccess !== true ||
+      hasMicAccess !== true
+    )
+      return;
 
     toast.loading("Connecting");
 
@@ -232,8 +242,8 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         {
           roomId: roomId,
           time: timestamp,
-          upload: (upBps/1e6.toFixed(2)),
-          download: (downBps/1e6.toFixed(2)),
+          upload: upBps / (1e6).toFixed(2),
+          download: downBps / (1e6).toFixed(2),
           latency: rttMs,
           averageLossPct: averageLossPct,
         },

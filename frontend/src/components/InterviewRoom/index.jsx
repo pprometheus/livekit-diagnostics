@@ -2,14 +2,10 @@ import React, { useState, useEffect } from "react";
 import TopBar from "../TopBar";
 import Controls from "../Controls";
 import Sidebar from "../SideBar";
-import {
-  RoomAudioRenderer,
-  RoomContext,
-  Toast,
-} from "@livekit/components-react";
+import { RoomAudioRenderer, RoomContext } from "@livekit/components-react";
 import "@livekit/components-styles";
 import Chart from "../Chart";
-import { MyVideoConference } from "../../container/InterviewRoomContainer/interviewRoomContainer";
+import { MyVideoConference } from "../../container/InterviewRoomContainer";
 
 const InterviewRoom = ({ token, roomA, statsData }) => {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);

@@ -1,5 +1,5 @@
 import React from "react";
-import InterviewRoomContainer from "./container/InterviewRoomContainer/interviewRoomContainer";
+import InterviewRoomContainer from "./container/InterviewRoomContainer";
 
 function App() {
   return (

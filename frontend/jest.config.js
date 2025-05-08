@@ -5,6 +5,10 @@
 
 /** @type {import('jest').Config} */
 const config = {
+  moduleNameMapper: {
+    "\\.module\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "\\.(css|less|scss|sass)$": "<rootDir>/styleMock.js",
+  },
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 

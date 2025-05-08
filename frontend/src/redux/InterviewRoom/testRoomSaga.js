@@ -7,7 +7,7 @@ import {
 } from "./testRoomSlice";
 import axios from "axios";
 import { Cookies } from "react-cookie";
-function* handleToken(action) {
+export function* handleToken(action) {
   const cookies = new Cookies();
 
   const peer = action.payload.participantName;

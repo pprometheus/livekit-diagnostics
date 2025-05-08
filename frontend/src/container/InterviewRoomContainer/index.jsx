@@ -18,7 +18,7 @@ import InterviewRoom from "../../components/InterviewRoom";
 import { DateTime } from "luxon";
 import Loader from "../../components/Loader";
 
-const serverUrl = import.meta.env.VITE_API_URL;
+const serverUrl = "wss://test-bsueauex.livekit.cloud";
 
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
@@ -119,10 +119,10 @@ export default function InterviewRoomContainer() {
 
       console.log("roomB connected:", roomB, roomA);
 
-      const publisherPc = roomA.engine.pcManager.publisher._pc;
+      const publisherPc = roomA.localParticipant.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
 
-      const subscriberPc = roomB.engine.pcManager.subscriber._pc;
+      const subscriberPc = roomA.localParticipant.engine.pcManager.subscriber._pc;
       if (subscriberPc) getStatsData(subscriberPc);
     };
 

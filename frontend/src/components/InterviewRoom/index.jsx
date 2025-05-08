@@ -22,6 +22,8 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
+  const isKbps = statsData.every((d) => d.download < 0.01 && d.upload < 0.01);
+
   return (
     <div className="w-full h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
       <RoomContext.Provider value={roomA}>
@@ -34,20 +36,23 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
           {isSidebarVisible && (
             <Sidebar>
               <Chart
-                title="Bandwidth (Mbps)"
+                title={`Bandwidth (${isKbps ? "Kbps" : "Mbps"})`}
                 data={statsData}
                 xDataKey="time"
-                yDomain={[0, 100]}
-                yTickFormatter={(value) => `${(value / 1e6).toFixed(2)}`}
+                yTickFormatter={(value) =>
+                  isKbps
+                    ? `${(value * 1000).toFixed(2)}`
+                    : `${value.toFixed(2)}`
+                }
                 lines={[
                   {
                     dataKey: "download",
-                    name: "Download (bytes)",
+                    name: "Download",
                     stroke: "#00bfff",
                   },
                   {
                     dataKey: "upload",
-                    name: "Upload (bytes)",
+                    name: "Upload",
                     stroke: "#cc88ff",
                   },
                 ]}
@@ -71,7 +76,7 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
                 yDomain={[0, 20]}
                 lines={[
                   {
-                    dataKey: "lossFraction",
+                    dataKey: "averageLossPct",
                     name: "Loss (%)",
                     stroke: "#ff0000",
                   },

@@ -30,6 +30,7 @@ export default function InterviewRoomContainer() {
 
   useEffect(() => {
     dispatch(fetchToken({ participantName: "peerA" }));
+    requestPermissions();
   }, []);
 
   const requestPermissions = async () => {
@@ -67,42 +68,13 @@ export default function InterviewRoomContainer() {
     }
   };
 
-  // useEffect(() => {
-  //   if (!token || !tokenB) return;
-
-  //   // const handle = setTimeout(async () => {
-  //   //   try {
-  //   //     dispatch(fetchToken({ participantName: "peerA" }));
-  //   //     dispatch(fetchTokenB({ participantName: "peerB" }));
-  //   //     console.log("Token refresh dispatched");
-  //   //     console.log("Token refresh dispatched", token, tokenB);
-  //   //     roomA.updateToken(token);
-  //   //     roomB.updateToken(tokenB);
-
-  //   //   } catch (err) {
-  //   //     console.error("Token refresh failed:", err);
-  //   //     roomA.disconnect();
-  //   //     roomB.disconnect();
-  //   //   }
-  //   // }, 2 * 60 * 1000); // 9 minutes
-
-  //   return () => clearTimeout(handle);
-  // }, [dispatch, token, tokenB, roomA, roomB]);
-
-  useEffect(() => {
-    requestPermissions();
-  }, []);
-
   useEffect(() => {
     if (!token) return;
-    if (hasCameraAccess !== true || hasMicAccess !== true) return;
+        if (hasCameraAccess !== true || hasMicAccess !== true) return;
 
-    let mounted = true;
-    const connectingToast = toast.loading("Connecting");
+    toast.loading("Connecting");
 
     const connectRoom = async () => {
-      if (!mounted) return;
-
       await roomA.connect(serverUrl, token, { reconnect: true });
       await roomA.localParticipant?.setMicrophoneEnabled(true);
       await roomA.localParticipant?.setCameraEnabled(true);
@@ -121,7 +93,6 @@ export default function InterviewRoomContainer() {
     trackReport();
 
     return () => {
-      mounted = false;
       roomA.disconnect();
     };
   }, [roomA, token, hasCameraAccess, hasMicAccess]);
@@ -133,13 +104,12 @@ export default function InterviewRoomContainer() {
         LKTrack.Source.Camera
       );
 
-
       const stats = await trackPub.track.getRTCStatsReport();
 
       stats.forEach((stat) => {
         // console.log("getRTC Stats",stat)
         if (stat.type === "remote-inbound-rtp")
-        console.log("Remote Inbound RTP getRTC",stat.packetsLost);
+          console.log("Remote Inbound RTP getRTC", stat.packetsLost);
       });
       // console.log("Room Video Track", stats);
       // console.log("track report called");
@@ -226,10 +196,6 @@ export const getStatsData = async (pc) => {
 export const getTrackData = async (track) => {
   setInterval(async () => {
     const stats = await track.getRTCStatsReport();
-    let packetsLostAudio = 0;
-    let packetsReceivedAudio = 0;
-    let packetsLostVideo = 0;
-    let packetsReceivedVideo = 0;
     stats.forEach((stat) => {
       console.log("Track Report", stat);
     });
@@ -257,17 +223,8 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         if (stat.type === "candidate-pair" && stat.state === "succeeded") {
           rttMs = stat.currentRoundTripTime * 1000;
         }
-        // if (stat.type === "remote-inbound-rtp") {
-        //     console.log("Remote Inbound RTP Get Stats",stat.packetsLost)
-        // }
       });
 
-      // const lossFraction =
-      //   packetsLost + packetsReceived > 0
-      //     ? (packetsLost / (packetsLost + packetsReceived)) * 100
-      //     : 0;
-      // const lossFraction = fractionLost;
-      // console.log("Loss Fraction:", lossFraction);
       const timestamp = DateTime.now().toFormat("hh:mm:ss a");
 
       setStatsData((prev) => [
@@ -275,10 +232,10 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
         {
           roomId: roomId,
           time: timestamp,
-          upload: upBps,
-          download: downBps,
+          upload: (upBps/1e6.toFixed(2)),
+          download: (downBps/1e6.toFixed(2)),
           latency: rttMs,
-          lossFraction: averageLossPct,
+          averageLossPct: averageLossPct,
         },
       ]);
     } catch (err) {

@@ -21,6 +21,7 @@ const Chart = ({
   unit,
   yTickFormatter,
   showLegend = false,
+  tooltip = null,
 }) => (
   <div
     className={`bg-gray-900 rounded-lg shadow p-2 flex flex-col flex-1 ${className}`}
@@ -79,6 +80,7 @@ const Chart = ({
               fontSize: 12,
             }}
             position={{ x: 0, y: 0 }}
+            formatter={tooltip ? tooltip : null}
           />
           {showLegend && (
             <Legend
@@ -86,7 +88,7 @@ const Chart = ({
               align="center"
               wrapperStyle={{
                 paddingBottom: 8,
-                color: '#CBD5E0',
+                color: "#CBD5E0",
                 fontSize: 12,
               }}
             />

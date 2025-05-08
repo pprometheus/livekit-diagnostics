@@ -57,6 +57,11 @@ const InterviewRoom = ({ token, roomA, statsData }) => {
                   },
                 ]}
                 showLegend={true}
+                tooltip={(value) => {
+                  return value < 0.01
+                    ? `${(value * 1000).toFixed(2)} Kbps`
+                    : `${value.toFixed(2)} Mbps`;
+                }}
               />
 
               <Chart

@@ -3,7 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   peers: {
     peerA: { token: null, roomName: null, status: null },
-    peerB: { token: null, roomName: null, status: null },
   },
 };
 
@@ -15,10 +14,7 @@ const testRoomSlice = createSlice({
       const peer = action.payload.participantName;
       state.peers[peer].status = "loading";
     },
-    fetchTokenB: (state, action) => {
-      const peer = action.payload.participantName;
-      state.peers[peer].status = "loading";
-    },
+
     setToken: (state, action) => {
       const { peer, token, roomName } = action.payload;
       console.log("Setting token for:", peer, action.payload);
@@ -34,9 +30,8 @@ const testRoomSlice = createSlice({
   },
 });
 
-export const { fetchToken, fetchTokenB, setToken, tokenStatus } =
+export const { fetchToken, setToken, tokenStatus } =
   testRoomSlice.actions;
 export const selectPeerA = (state) => state.testRoom.peers.peerA;
-export const selectPeerB = (state) => state.testRoom.peers.peerB;
 
 export default testRoomSlice.reducer;

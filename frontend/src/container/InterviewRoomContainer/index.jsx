@@ -10,9 +10,7 @@ import { Track as LKTrack, Room, RoomEvent } from "livekit-client";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchToken,
-  fetchTokenB,
   selectPeerA,
-  selectPeerB,
 } from "../../redux/InterviewRoom/testRoomSlice";
 import InterviewRoom from "../../components/InterviewRoom";
 import { DateTime } from "luxon";
@@ -23,21 +21,15 @@ const serverUrl = "wss://test-bsueauex.livekit.cloud";
 export default function InterviewRoomContainer() {
   const [statsData, setStatsData] = useState([]);
   const dispatch = useDispatch();
-  const tokenB = useSelector(selectPeerB).token;
   const token = useSelector(selectPeerA).token;
 
   const [roomA] = useState(() => new Room({}));
-  const [roomB] = useState(() => new Room({}));
 
   const [hasCameraAccess, setHasCameraAccess] = useState(null);
   const [hasMicAccess, setHasMicAccess] = useState(null);
 
   useEffect(() => {
     dispatch(fetchToken({ participantName: "peerA" }));
-  }, []);
-
-  useEffect(() => {
-    dispatch(fetchTokenB({ participantName: "peerB" }));
   }, []);
 
   const requestPermissions = async () => {
@@ -102,7 +94,7 @@ export default function InterviewRoomContainer() {
   }, []);
 
   useEffect(() => {
-    if (!token || !tokenB) return;
+    if (!token) return;
     if (hasCameraAccess !== true || hasMicAccess !== true) return;
 
     let mounted = true;
@@ -115,34 +107,50 @@ export default function InterviewRoomContainer() {
       await roomA.localParticipant?.setMicrophoneEnabled(true);
       await roomA.localParticipant?.setCameraEnabled(true);
 
-      if (tokenB) await roomB?.connect(serverUrl, tokenB, { reconnect: true });
-
-      console.log("roomB connected:", roomB, roomA);
+      console.log("roomB connected:", roomA);
 
       const publisherPc = roomA.localParticipant.engine.pcManager.publisher._pc;
       if (publisherPc) startStatsPolling(publisherPc, setStatsData, "RoomA");
 
-      const subscriberPc = roomA.localParticipant.engine.pcManager.subscriber._pc;
+      const subscriberPc =
+        roomA.localParticipant.engine.pcManager.subscriber._pc;
       if (subscriberPc) getStatsData(subscriberPc);
     };
 
     connectRoom();
+    trackReport();
 
     return () => {
       mounted = false;
       roomA.disconnect();
-      roomB.disconnect();
     };
-  }, [roomA, token, tokenB, hasCameraAccess, hasMicAccess]);
+  }, [roomA, token, hasCameraAccess, hasMicAccess]);
+
+  async function trackReport() {
+    setInterval(async () => {
+      const localParticipant = roomA.localParticipant;
+      const trackPub = localParticipant.getTrackPublication(
+        LKTrack.Source.Camera
+      );
+
+
+      const stats = await trackPub.track.getRTCStatsReport();
+
+      stats.forEach((stat) => {
+        // console.log("getRTC Stats",stat)
+        if (stat.type === "remote-inbound-rtp")
+        console.log("Remote Inbound RTP getRTC",stat.packetsLost);
+      });
+      // console.log("Room Video Track", stats);
+      // console.log("track report called");
+    }, 1000);
+  }
 
   const ready =
     hasCameraAccess === true &&
     hasMicAccess === true &&
     roomA.state === RoomEvent.Connected &&
-    roomB.state === RoomEvent.Connected &&
-    roomA.engine.pcManager.publisher._pc &&
-    roomB.engine.pcManager.subscriber._pc;
-
+    roomA.engine.pcManager.publisher._pc;
   if (!ready) {
     return (
       <>
@@ -201,13 +209,29 @@ export const getStatsData = async (pc) => {
         packetsLostAudio + packetsReceivedAudio > 0
           ? (packetsLostAudio / (packetsLostAudio + packetsReceivedAudio)) * 100
           : 0;
+
       const videoLossP =
         packetsLostVideo + packetsReceivedVideo > 0
           ? (packetsLostVideo / (packetsLostVideo + packetsReceivedVideo)) * 100
           : 0;
 
+      console.log("Inbound RTP", packetsLostVideo);
+
       const avgLossP = (audioLossP + videoLossP) / 2;
       averageLossPct = avgLossP.toFixed(2);
+    });
+  }, 1000);
+};
+
+export const getTrackData = async (track) => {
+  setInterval(async () => {
+    const stats = await track.getRTCStatsReport();
+    let packetsLostAudio = 0;
+    let packetsReceivedAudio = 0;
+    let packetsLostVideo = 0;
+    let packetsReceivedVideo = 0;
+    stats.forEach((stat) => {
+      console.log("Track Report", stat);
     });
   }, 1000);
 };
@@ -234,9 +258,7 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           rttMs = stat.currentRoundTripTime * 1000;
         }
         // if (stat.type === "remote-inbound-rtp") {
-        //   packetsLost = stat.packetsLost || 0;
-        //   packetsReceived = stat.packetsReceived;
-        //   fractionLost = stat.fractionLost || 0; /
+        //     console.log("Remote Inbound RTP Get Stats",stat.packetsLost)
         // }
       });
 

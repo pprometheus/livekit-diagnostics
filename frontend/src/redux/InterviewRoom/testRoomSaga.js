@@ -1,7 +1,6 @@
 import { takeLatest, put, call } from "redux-saga/effects";
 import {
   fetchToken,
-  fetchTokenB,
   setToken,
   tokenStatus,
 } from "./testRoomSlice";
@@ -29,7 +28,6 @@ export function* handleToken(action) {
 
 function* testRoomSaga() {
   yield takeLatest(fetchToken.type, handleToken);
-  yield takeLatest(fetchTokenB.type, handleToken);
 }
 
 export default testRoomSaga;

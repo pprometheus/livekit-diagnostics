@@ -1,7 +1,7 @@
 import React from "react";
 const Loader = () => {
   return (
-    <div className="w-full h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+    <div className="w-full h-screen flex flex-col bg-gray-100 dark:bg-gray-900" data-testid="loader">
       <div
         className="h-[68px] flex items-center justify-between px-4 
                   bg-gray-300 dark:bg-gray-700 animate-pulse"

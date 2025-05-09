@@ -5,6 +5,7 @@ export const getToken = async (req, res) => {
   try {
     const roomName = "Testing Room";
     const { participantName } = req.query;
+    console.log("Particpant",participantName)
     const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
       identity: participantName,
       ttl: "10m",
@@ -20,13 +21,8 @@ export const getToken = async (req, res) => {
 
     const token = await at.toJwt();
 
-    res.cookie(`token${participantName}`, token, {
-      secure: true,
-      sameSite: "strict",
-      maxAge: 10 * 60 * 1000,
-    });
-
     res.json({
+      token,
       status: 201,
       message: "Token created successfully",
     });

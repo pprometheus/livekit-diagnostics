@@ -174,12 +174,7 @@ export const getStatsData = async (pc) => {
         downBps = stat.bytesReceived - prevBytesReceived;
         prevBytesReceived = stat.bytesReceived;
       }
-      if (
-        stat.type === "inbound-rtp" &&
-        (stat.kind === "video" || stat.kind === "audio")
-      ) {
-        console.log("inbound", stat);
-      }
+
       if (stat.type === "inbound-rtp" && stat.kind === "video") {
         packetsLostVideo = stat.packetsLost;
         packetsReceivedVideo = stat.packetsReceived;
@@ -198,10 +193,9 @@ export const getStatsData = async (pc) => {
           ? (packetsLostVideo / (packetsLostVideo + packetsReceivedVideo)) * 100
           : 0;
 
-      console.log("Inbound RTP", packetsLostVideo);
-
       const avgLossP = (audioLossP + videoLossP) / 2;
       averageLossPct = avgLossP.toFixed(2);
+      console.log(averageLossPct, "avergloss", audioLossP, videoLossP);
     });
   }, 1000);
 };

@@ -30,7 +30,6 @@
     "livekit-client": "^2.11.4",
     "luxon": "^3.6.1",
     "react": "^19.0.0",
-    "react-cookie": "^8.0.1",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "react-redux": "^9.2.0",

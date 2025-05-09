@@ -1,7 +1,8 @@
-import React from "react";
+import React, { act } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { Provider } from "react-redux";
 import InterviewRoomContainer, { startStatsPolling, getStatsData } from "..";
+import { selectPeerByName } from "../../../redux/InterviewRoom/testRoomSlice";
 
 jest.mock("@livekit/components-styles", () => ({}));
 
@@ -64,6 +65,7 @@ jest.mock("@livekit/components-react", () => ({
   },
 }));
 
+
 const mockStream = { getTracks: () => [{ stop: jest.fn() }] };
 navigator.mediaDevices = {
   getUserMedia: jest.fn().mockResolvedValue(mockStream),
@@ -99,9 +101,9 @@ jest.mock("../../../components/InterviewRoom", () => () => (
 
 jest.mock("../../../redux/InterviewRoom/testRoomSlice", () => ({
   fetchToken: jest.fn().mockReturnValue({ type: "fetchToken" }),
-  fetchTokenB: jest.fn().mockReturnValue({ type: "fetchTokenB" }),
-  selectPeerA: jest.fn().mockReturnValue({ token: "tokenA" }),
-  selectPeerB: jest.fn().mockReturnValue({ token: "tokenB" }),
+  selectPeerByName: jest.fn().mockImplementation((name) => (state) => ({
+    token: "token",
+  })),
 }));
 
 describe("InterviewRoomContainer", () => {
@@ -165,7 +167,6 @@ describe("InterviewRoomContainer", () => {
     };
     const setStatsData = jest.fn();
 
-    // Use the exported startStatsPolling function
     startStatsPolling(fakePc, setStatsData, "RoomA");
 
     jest.advanceTimersByTime(1000);
@@ -174,7 +175,6 @@ describe("InterviewRoomContainer", () => {
     expect(setStatsData).toHaveBeenCalled();
     expect(fakePc.getStats).toHaveBeenCalled();
 
-    // Clean up interval
     jest.clearAllTimers();
   });
 
@@ -189,9 +189,9 @@ describe("InterviewRoomContainer", () => {
     };
 
     jest.spyOn(React, "useState").mockImplementation((init) => {
-      if (init === null) return [true, jest.fn()]; 
-      if (Array.isArray(init)) return [init, jest.fn()]; 
-      return [init, jest.fn()]; 
+      if (init === null) return [true, jest.fn()];
+      if (Array.isArray(init)) return [init, jest.fn()];
+      return [init, jest.fn()];
     });
 
     render(

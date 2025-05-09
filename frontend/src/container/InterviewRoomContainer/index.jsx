@@ -93,7 +93,7 @@ export default function InterviewRoomContainer() {
         await roomA.localParticipant?.setMicrophoneEnabled(true);
         await roomA.localParticipant?.setCameraEnabled(true);
 
-        console.log("roomB connected:", roomA);
+        console.log("room connected:", roomA);
 
         const publisherPc =
           roomA.localParticipant.engine.pcManager.publisher._pc;
@@ -160,6 +160,8 @@ export const MyVideoConference = () => {
 let averageLossPct = 0;
 let downBps = 0;
 let prevBytesReceived = 0;
+let prevVideoTimestamp = 0;
+let prevAudioTimestamp = 0;
 
 export const getStatsData = async (pc) => {
   setInterval(async () => {
@@ -174,20 +176,31 @@ export const getStatsData = async (pc) => {
         downBps = stat.bytesReceived - prevBytesReceived;
         prevBytesReceived = stat.bytesReceived;
       }
-      if (
-        stat.type === "inbound-rtp" &&
-        (stat.kind === "video" || stat.kind === "audio")
-      ) {
-        console.log("inbound", stat);
-      }
+
       if (stat.type === "inbound-rtp" && stat.kind === "video") {
-        packetsLostVideo = stat.packetsLost;
-        packetsReceivedVideo = stat.packetsReceived;
+        if (stat.timestamp > prevVideoTimestamp) {
+          packetsLostVideo = stat.packetsLost;
+          packetsReceivedVideo = stat.packetsReceived;
+          prevVideoTimestamp = stat.timestamp;
+          console.log("video stats", stat.packetsReceived, stat.packetsLost);
+        } else {
+          packetsLostVideo = 0;
+          packetsReceivedVideo = 0;
+        }
       }
+
       if (stat.type === "inbound-rtp" && stat.kind === "audio") {
-        packetsLostAudio = stat.packetsLost;
-        packetsReceivedAudio = stat.packetsReceived;
+        if (stat.timestamp > prevAudioTimestamp) {
+          packetsLostAudio = stat.packetsLost;
+          packetsReceivedAudio = stat.packetsReceived;
+          prevAudioTimestamp = stat.timestamp;
+          console.log("audio stats", stat.packetsReceived, stat.packetsLost);
+        } else {
+          packetsLostAudio = 0;
+          packetsReceivedAudio = 0;
+        }
       }
+
       const audioLossP =
         packetsLostAudio + packetsReceivedAudio > 0
           ? (packetsLostAudio / (packetsLostAudio + packetsReceivedAudio)) * 100
@@ -197,8 +210,6 @@ export const getStatsData = async (pc) => {
         packetsLostVideo + packetsReceivedVideo > 0
           ? (packetsLostVideo / (packetsLostVideo + packetsReceivedVideo)) * 100
           : 0;
-
-      console.log("Inbound RTP", packetsLostVideo);
 
       const avgLossP = (audioLossP + videoLossP) / 2;
       averageLossPct = avgLossP.toFixed(2);
@@ -228,7 +239,6 @@ export const startStatsPolling = (pc, setStatsData, roomId) => {
           stat.type === "outbound-rtp" &&
           (stat.kind === "video" || stat.kind === "audio")
         ) {
-          console.log("outbound", stat);
         }
       });
 
